@@ -63,9 +63,9 @@ NFL_dataframe$GUILTY = NA
 
 Next we need to classify each remaining player within the database as either guilty or not guilty -- i.e. a value of 1 in the GUILTY column if guilty and 0 otherwise.
 
-I *could* just go through each row and categorize each row a 1 or a 0 based on the description in the OUTCOME column, but that would take too long. I also don't want to. Instead we'll use a homemade Naive Bayes R script to mine the text in the OUTCOME column and then predict whether or not to classify each player as guilty or not guilty. (Yes, I'm aware there are already packages in R with pre-built Naive Bayes functions for such purposes, but the point of this side excursion was to test how well I understood Naive Bayes algorithm as well as its strengths and weaknesses. It also vastly improved my coding skills.) 
+I *could* just go through each row and categorize each row a 1 or a 0 based on the description in the OUTCOME column, but that would take too long. I also don't want to. Instead we'll use a homemade Naive Bayes R script to mine the text in the OUTCOME column and then predict whether or not to classify each player as guilty or not guilty. (Yes, I'm aware there are already packages in R with pre-built Naive Bayes functions for such purposes, but the point of this side excursion was to test how well I understood the Naive Bayes algorithm as well as its strengths and weaknesses. It also vastly improved my coding skills.) 
 
 If you want to learn the theory behind Naive Bayes combined with Bag-of-Words (BoW) as a method of text classification, there are plenty of references out there, but I found that I thought were most useful were [here](https://www.youtube.com/watch?v=EGKeC2S44Rs) (for learning how to do it by hand), [here](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) (as an overview of sentiment analysis), and [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) (more into the weeds. You **will** have to read this reference because the pseudo-code outlined is ~90% of how my code is set up).  
 
-Ironically, I will have to go into the 
+Ironically, I will have to go into the [to be continued]
 
