@@ -97,10 +97,20 @@ NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
     tm_map(removePunctuation) %>%
     tm_map(removeWords, stopwords(kind = "en")) %>%
     tm_map(stripWhitespace)
-  
-  #Gets a document term matrix to use for the actual algorithm and 
-  #filters infrequent words
-  
+    
+```
+
+[VectorSource](https://www.rdocumentation.org/packages/tm/versions/0.7-6/topics/VectorSource), [VCorpus](https://www.rdocumentation.org/packages/tm/versions/0.7-6/topics/VCorpus), and [tm_map](https://www.rdocumentation.org/packages/tm/versions/0.7-6/topics/tm_map) are functions from the tm package. VectorSource will interpret each row of the OUTCOME column in the training data as a document, while VCorpus will give us a [text corpus](https://en.wikipedia.org/wiki/Text_corpus) that we will use to set up and clean our BoW for the NB algorithm. We then use tm_map to do the following transformations 
+
+1. Remove any capital letters from words and replace them with lower-case letters. This is so when we count word frequencies in our documents we will avoid, for example, counting words like "The" and "the" as two separate word counts and instead count "the" as happening twice. 
+
+2. Remove punctuation from the documents. Similar to previous point, but this time we're avoiding counting things like "the,", "the", and "the." as separate word counts and instead count "the" as happening 3 times.
+
+3. Remove English stopwords. Stopwords are usually words in natural language processing that add no value to our analysis. For example, in the outcome "Dismissed by judge in Alabama." we don't really care about the words "by" and "in" because they don't help us in determining whether or not the player was found guilty, so they should just be removed.
+
+4. Strip any whitespace that may have accidentally been fat-fingered in.
+
+```R  
   dtmTrain = DocumentTermMatrix(trainCorpus)
   
   freqTerms = findFreqTerms(dtmTrain, 5)
@@ -108,7 +118,8 @@ NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
   dtmTrain = DocumentTermMatrix(trainCorpus, control =
                                    list(dictionary = freqTerms))
 ```
-test test
+Start here again
+
 ```R
   #Starts the Bernoulli Naive Bayes Algorithm
   
