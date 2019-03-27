@@ -81,7 +81,7 @@ library(tidytext)
 dplyr, tm, and tidytext are all text mining packages. I'll explain what each one provides as we progress further into the algorithm.
 
 
-## Defining the NB Function, Randomizing, and Cleaning the Data
+## Defining the NB Function and Creating a BoW
 
 Let's begin writing the algorithm. Define a function in R as "NaiveBayes" and make it require the following arguments: the portion of the data that's for training (i.e. the 100 labeled rows), the portion that's for predicting (i.e. the rest of the dataset), the name of the column in the dataset that contains the text to be mined and used in the NB algorithm for classification (i.e. the "OUTCOME" column), and the name of column where NB will classify the row with a 1 or a 0 (i.e. the "GUILTY" column).    
 
@@ -110,6 +110,8 @@ NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
 
 4. Strip any whitespace that may have accidentally been fat-fingered in.
 
+Now for our word counts, we'll set up a [document term matrix](https://en.wikipedia.org/wiki/Document-term_matrix).
+
 ```R  
   dtmTrain = DocumentTermMatrix(trainCorpus)
   
@@ -118,7 +120,14 @@ NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
   dtmTrain = DocumentTermMatrix(trainCorpus, control =
                                    list(dictionary = freqTerms))
 ```
-Start here again
+
+[DocumentTermMatrix](https://en.wikipedia.org/wiki/Document-term_matrix) does exactly what you'd expect. We also should remove any words that appear less than 5 times out of *all* our documents in our training data using the findFreqTerms function-- the idea being that words used only a few times out of all our data have little to nothing to contribute to our predictive analysis. 
+
+At this point we have our nice and clean BoW for us to use, so now we can begin writing the actual NB algorithm!
+
+## Training the data
+
+We'll start here tomorrow...
 
 ```R
   #Starts the Bernoulli Naive Bayes Algorithm
