@@ -25,7 +25,7 @@ WebScraper = function(url, css){
   column = html_text(htmlColumn)
   return(column)
   }
-
+  
 ```
 Thanks to rvest, the function should seem pretty straighforward -- WebScraper takes as input the uniform resource locator (url) web address and the web page's cascading style sheets (css) related to the data columns of interest as input, then it returns the column in an R friendly format. If you're a html novice, you'll need a device to help you find the specific css input needed to let WebScraper know what piece of the page you want scraped. Fortunately there's a nifty little free gadget for such a task that's easy to install and use called [Selector Gadget](https://selectorgadget.com/). (Hat tip to [Andrew Cantino](https://vimeo.com/tectonic) for this lovely gem.)
 
@@ -86,6 +86,7 @@ dplyr, tm, and tidytext are all text mining packages. I'll explain what each one
 Let's begin writing the algorithm. Define a function in R as "NaiveBayes" and make it require the following arguments: the portion of the data that's for training (i.e. the 100 labeled rows), the portion that's for predicting (i.e. the rest of the dataset), the name of the column in the dataset that contains the text to be mined and used in the NB algorithm for classification (i.e. the "OUTCOME" column), and the name of column where NB will classify the row with a 1 or a 0 (i.e. the "GUILTY" column).    
 
 ```R
+
 NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
 
   train = trainData
@@ -113,12 +114,14 @@ NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
 Now for our word counts, we'll set up a [document term matrix](https://en.wikipedia.org/wiki/Document-term_matrix).
 
 ```R  
+
   dtmTrain = DocumentTermMatrix(trainCorpus)
   
   freqTerms = findFreqTerms(dtmTrain, 5)
   
   dtmTrain = DocumentTermMatrix(trainCorpus, control =
                                    list(dictionary = freqTerms))
+                                   
 ```
 
 [DocumentTermMatrix](https://en.wikipedia.org/wiki/Document-term_matrix) does exactly what you'd expect. We also should remove any words that appear less than 5 times out of *all* our documents in our training data using the findFreqTerms function-- the idea being that words used only a few times out of all our data have little to nothing to contribute to our predictive analysis. 
@@ -132,13 +135,13 @@ First we'll need to acquire all the different "unique" words used within all the
 ```R
 
   vocab = Terms(dtmTrain)
-  
   totDocs = nDocs(dtmTrain)
   
 ```
 Next we need to find out what the prior probabilities for each class are -- i.e. if we knew nothing else about a player in the database, what are the odds he's guilty or not guilty? This is just a simple ratio of the number of guilty or non-guilty players in the database over the total number of players.
 
 ```R
+
 nClass0 = nrow(train[train[ ,outcomeColumn] == 0, ])
 nClass1 = nrow(train[train[ ,outcomeColumn] == 1, ])
 priorProb0 = nClass0 / totDocs
@@ -149,41 +152,52 @@ Now we'll need to figure out how many documents in each separate category contai
 
 ```R
 
-  trainTibble = tidy(as.matrix(dtmTrain))
-  trainTibble$categ = train[,outcomeColumn]
-  nDocsPerTerm0 = colSums(trainTibble[trainTibble$categ == 0, ])
-  nDocsPerTerm1 = colSums(trainTibble[trainTibble$categ == 1, ])
-  nDocsPerTerm0 = nDocsPerTerm0[-length(nDocsPerTerm0)]
-  nDocsPerTerm1 = nDocsPerTerm1[-length(nDocsPerTerm1)]
-  
+trainTibble = tidy(as.matrix(dtmTrain))
+trainTibble$categ = train[,outcomeColumn]
+nDocsPerTerm0 = colSums(trainTibble[trainTibble$categ == 0, ])
+nDocsPerTerm1 = colSums(trainTibble[trainTibble$categ == 1, ])
+nDocsPerTerm0 = nDocsPerTerm0[-length(nDocsPerTerm0)]
+nDocsPerTerm1 = nDocsPerTerm1[-length(nDocsPerTerm1)] 
+
 ```  
-(If you're wondering what the point of redefining "nDocsPerTerm1" and "nDocsPerTerm0", long story short, it's because the initial nDocsPerTerm1 and nDocsPerTerm0 will also count the number of times the word "categ" appears in each of the documents separated by class. The last two commands drop it. I don't want to explain why and the reason is trivial).  
+(If you're wondering what the point of redefining "nDocsPerTerm1" and "nDocsPerTerm0", long story short, it's because initially those variables will also count the number of times the word "categ" appears in each of the documents separated by class. The last two commands drop it. I don't want to explain why and the reason is trivial.)
+
+Great! Now we have all we need to find the conditional probabilities for each word in each of different categories of documents. Let's do that!
 
 ```R
-  #5. Get the conditional probabilities for the data
+
+termCondProb0 = (nDocsPerTerm0 + 1)/(nClass0 + 2)
+termCondProb1 = (nDocsPerTerm1 + 1)/(nClass1 + 2)
+
+```
+
+Again, see [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) to understand the formula above. 
+
+## Testing the Data
+
+We're almost done! First we need to clean the test data, which is the same procedure as what we did for the training data, as well as and grab all the unique vocabulary. 
+
+```R  
+
+testCorpus = VCorpus(VectorSource(test[,textColumn]))
+testCorpus = testCorpus %>% 
+  tm_map(content_transformer(tolower)) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(removeWords, stopwords(kind = "en")) %>%
+  tm_map(stripWhitespace)
   
-  termCondProb0 = (nDocsPerTerm0 + 1)/(nClass0 + 2)
-  termCondProb1 = (nDocsPerTerm1 + 1)/(nClass1 + 2)
-  
-  #6. Clean the test data
-  
-  testCorpus = VCorpus(VectorSource(test[,textColumn]))
-  testCorpus = testCorpus %>% 
-    tm_map(content_transformer(tolower)) %>%
-    tm_map(removePunctuation) %>%
-    tm_map(removeWords, stopwords(kind = "en")) %>%
-    tm_map(stripWhitespace)
-  
-  dtmTest = DocumentTermMatrix(testCorpus)
-  freqTermsTest = findFreqTerms(dtmTest, 5)
-  dtmTest = DocumentTermMatrix(testCorpus, control =
+dtmTest = DocumentTermMatrix(testCorpus)
+freqTermsTest = findFreqTerms(dtmTest, 5)
+dtmTest = DocumentTermMatrix(testCorpus, control =
                                    list(dictionary = freqTermsTest))
-  
-  #7. Extract vocab from test data
-  vocabTest = Terms(dtmTest)
-  
-  #8. Stuff
-  
+ 
+vocabTest = Terms(dtmTest)
+
+```
+Now the actual classification begins! Below is the code that predicts whether or not each row player in the test data should be classified as guilty or not based on their "OUTCOME" description. 
+
+```R
+
   classifiedRows = c()
   
   for (i in 1:nDocs(dtmTest)) {
@@ -219,10 +233,10 @@ Now we'll need to figure out how many documents in each separate category contai
   
   return(classifiedRows)
 
-
-
-
-
-
-
 ```
+
+Kinda sorta make sense?
+
+Essentially all we're doing is creating an empty vector for the classified results, creating a for-loop that computes the posterior...
+
+...to be continued
