@@ -127,24 +127,28 @@ At this point we have our nice and clean BoW for us to use, so now we can begin 
 
 ## Training the data
 
-We'll start here tomorrow...
+First we'll need to acquire all the different "unique" words used within all the documents and a count of the total number of documents used (the "Why?" will become relevant soon, unless you already read my provided links regarding the Bernoulli model). 
 
 ```R
-  #Starts the Bernoulli Naive Bayes Algorithm
-  
-  #1. Extract vocabulary from training data
+
   vocab = Terms(dtmTrain)
   
-  #2. Count the total number of documents N
   totDocs = nDocs(dtmTrain)
   
-  #3. Get the prior probabilities for class 1 and class 0 -- i.e. N_c/N
-  nClass0 = nrow(train[train[ ,outcomeColumn] == 0, ])
-  nClass1 = nrow(train[train[ ,outcomeColumn] == 1, ])
-  priorProb0 = nClass0 / totDocs
-  priorProb1 = nClass1 / totDocs
-  
-  #4. Count the number of documents in each class 'c' containing term 't'
+```
+Next we need to find out what the prior probabilities for each class are -- i.e. if we knew nothing else about a player in the database, what are the odds he's guilty or not guilty? This is just a simple ratio of the number of guilty or non-guilty players in the database over the total number of players.
+
+```R
+nClass0 = nrow(train[train[ ,outcomeColumn] == 0, ])
+nClass1 = nrow(train[train[ ,outcomeColumn] == 1, ])
+priorProb0 = nClass0 / totDocs
+priorProb1 = nClass1 / totDocs
+
+```
+Now we'll need to figure out how many documents in each separate category contain each of our unique words (e.g. the word "dropped" might appear in 2 documents amongst the guilty players and in 20 documents amongst the non-guilty players). 
+
+```R
+
   trainTibble = tidy(as.matrix(dtmTrain))
   trainTibble$categ = train[,outcomeColumn]
   nDocsPerTerm0 = colSums(trainTibble[trainTibble$categ == 0, ])
@@ -152,6 +156,10 @@ We'll start here tomorrow...
   nDocsPerTerm0 = nDocsPerTerm0[-length(nDocsPerTerm0)]
   nDocsPerTerm1 = nDocsPerTerm1[-length(nDocsPerTerm1)]
   
+```  
+(If you're wondering what the point of redefining "nDocsPerTerm1" and "nDocsPerTerm0", long story short, it's because the initial nDocsPerTerm1 and nDocsPerTerm0 will also count the number of times the word "categ" appears in each of the documents separated by class. The last two commands drop it. I don't want to explain why and the reason is trivial).  
+
+```R
   #5. Get the conditional probabilities for the data
   
   termCondProb0 = (nDocsPerTerm0 + 1)/(nClass0 + 2)
