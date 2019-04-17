@@ -6,7 +6,9 @@ This will be an introduction.
 
 # Data Collection and Cleaning
 
-The first thing we need to do is collect and clean the data, which will be accomplished by building a webscraper. For this task we'll need to use the package 'rvest' for some useful html reading and cleaning functions, as well as tool called [Selector Gadget](https://selectorgadget.com/) that will help identify specific css input needed to let our webscraper know what information on the webpage we want scraped.  (Hat tip to [Andrew Cantino](https://vimeo.com/tectonic) for this lovely gem.)
+The first thing we need to do is collect and clean the data, which I will do by building a webscraper to go on the [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) website scrap the database. 
+
+*A very sincere hat tip to [Andrew Cantino](https://vimeo.com/tectonic) for creating the [Selector Gadget](https://selectorgadget.com/) tool that helped me parse through html code.
 
 ```R
 install.packages('rvest')
@@ -19,11 +21,6 @@ WebScraper = function(url, css){
   return(column)
   }
   
-```
-
-We now have all we need to collect that dataframe from the website and create our own dataframe to use for analysis. 
-
-```R
 website = 'https://www.usatoday.com/sports/nfl/arrests/'
 
 NAMES = WebScraper(website, '.arrest-name')
@@ -40,7 +37,7 @@ NFL_dataframe = data.frame("NAMES" = NAMES, "POS" = POS, "TEAM" = TEAM,
                            'OUTCOME' = OUTCOME, stringsAsFactors = FALSE)
 ```
 
-If you type in View(NFL_dataframe), or if you already took a peak at the website before reading this far, you should have noticed that in the "OUTCOME" column of the dataframe contained many entries with the following phrase "Resolution undetermined." For our purposes, we can't use them since we only care about outcomes that categorize players as either guilty or not guilty, so lets remove them. The following piece of code will accomplish this.
+Note that in the "OUTCOME" column of the dataframe there are many entries with the sentence "Resolution undetermined." These are players who have yet to be deemed guilty or not guilty. For my purpose, I need to remove these players from the database since I only care about players with known verdicts. The following piece of code will accomplish this.
 
 ```R
 
@@ -52,17 +49,17 @@ NFL_dataframe$GUILTY = NA
 
 # Text Mining and Prediction: Naive Bayes Edition
 
-Next we need to classify each remaining player within the database as either guilty or not guilty -- i.e. a value of 1 in the GUILTY column if guilty and 0 otherwise.
+Next I need to classify each remaining player within the database as either guilty or not guilty -- i.e. a value of 1 in the GUILTY column if guilty and 0 otherwise.
 
-I *could* just go through each row and categorize each row a 1 or a 0 based on the description in the OUTCOME column, but that would take too long. I also don't want to. Instead, we'll use a homemade Naive Bayes R script to mine the text in the OUTCOME column and then predict whether or not to classify each player as guilty or not guilty.
+I *could* just go through each row and categorize each row a 1 or a 0 based on the description in the OUTCOME column, but that would take too long. Instead, I'll use a homemade Naive Bayes R script to mine the text in the OUTCOME column and then predict whether or not to classify each player as guilty or not guilty.
 
-If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Words (BoW) as a method of text classification, there are plenty of references out there, but I found that I thought were most useful were [here](https://www.youtube.com/watch?v=EGKeC2S44Rs) (for learning how to do it by hand), [here](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) (as an overview of sentiment analysis), and [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) (more into the weeds. You **will** have to read this reference to fully understand my code because the pseudo-code outlined within the link is ~90% of how my code is structured).  
-
-We will (unfortunately) have to manually label some of the rows with either a 0 or a 1 so that the algorithm can train on said rows and use the results to make predictions on the rest of the dataset. 
+If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Words (BoW) as a method of text classification, there are plenty of references out there, but I found that I thought were most useful were [here](https://www.youtube.com/watch?v=EGKeC2S44Rs) (for learning how to do it by hand), [here](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) (as an overview of sentiment analysis), and [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) (more into the weeds. About ~90% of how my code is structured is based on the information contained within this link).  
 
 ## Training and Testing the NB Algorithm
 
-I manually labeled the first 100 rows in the Excel version of the NFL Database in order to train and test the accuracy of my algorithm. Below is my actual User Defined Function (UDF) for the NB algorithm.
+First, I will (unfortunately) have to manually label some of the rows with either a 0 or a 1 so that the algorithm can train on said rows and use the results to make predictions on the rest of the dataset. Thus, I manually labeled in Excel the first 100 rows in the Excel of the NFL Database. 
+
+Now for the actual code -- below is my homemade version of the Bernoulli NB algorithm.
 
 ```R
 
