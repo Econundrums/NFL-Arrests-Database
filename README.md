@@ -56,142 +56,101 @@ Next we need to classify each remaining player within the database as either gui
 
 I *could* just go through each row and categorize each row a 1 or a 0 based on the description in the OUTCOME column, but that would take too long. I also don't want to. Instead, we'll use a homemade Naive Bayes R script to mine the text in the OUTCOME column and then predict whether or not to classify each player as guilty or not guilty.
 
-If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Words (BoW) as a method of text classification, there are plenty of references out there, but I found that I thought were most useful were [here](https://www.youtube.com/watch?v=EGKeC2S44Rs) (for learning how to do it by hand), [here](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) (as an overview of sentiment analysis), and [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) (more into the weeds. You **will** have to read this reference because the pseudo-code outlined is ~90% of how my code is set up).  
+If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Words (BoW) as a method of text classification, there are plenty of references out there, but I found that I thought were most useful were [here](https://www.youtube.com/watch?v=EGKeC2S44Rs) (for learning how to do it by hand), [here](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) (as an overview of sentiment analysis), and [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) (more into the weeds. You **will** have to read this reference to fully understand my code because the pseudo-code outlined within the link is ~90% of how my code is structured).  
 
-We will (unfortunately) have to manually label some of the rows so that the algorithm can train and use the results to run predictions on the rest of the dataset. I did the first 100 rows.
+We will (unfortunately) have to manually label some of the rows with either a 0 or a 1 so that the algorithm can train on said rows and use the results to make predictions on the rest of the dataset. 
 
-## Required Packages
+## Training and Testing the NB Algorithm
 
-We'll need to make use of the 'dplyr', 'tm', and 'tidytext' packages. The snippet of code below will have a comment next to each library elaborating which functions will be used from each package.
-
-```R
-
-library(dplyr) #
-library(tm) # for functions VectorSource, VCorpus, tm_map and TermDocumentMatrix
-library(tidytext) # for functions tidy
-
-```
-
-## Defining the NB Function and Creating a BoW
-
-Let's begin writing the algorithm. Define a function in R as "NaiveBayes" and make it require the following arguments: the portion of the data that's for training (i.e. the 100 labeled rows), the portion that's for predicting (i.e. the rest of the dataset), the name of the column in the dataset that contains the text to be mined and used in the NB algorithm for classification (i.e. the "OUTCOME" column), and the name of column where NB will classify the row with a 1 or a 0 (i.e. the "GUILTY" column).    
+I manually labeled the first 100 rows in the Excel version of the NFL Database in order to train and test the accuracy of my algorithm. Below is my actual User Defined Function (UDF) for the NB algorithm.
 
 ```R
 
-NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
+library(dplyr)
+library(tm)
+library(tidytext)
 
-  train = trainData
-  test = testData
-
-```
-Next we'll need to clean the text within the test data. This is done for the following reasons:
-
-1. We don't want any capital letters because, for example, our algorithm will count words such as "The" and "the" as two distinct words.
-
-2. Similarly, we don't want any punctuation attached to any of the words for the same reason as #1.
-
-3. We want to remove stopwords. Stopwords are usually words in natural language processing that add no value to our analysis. For example, in the outcome "Dismissed by judge in Alabama." we don't really care about the words "by" and "in" because they don't help us in determining whether or not the player was found guilty.
-
-4. We want to strip any whitespace that may have accidentally been fat-fingered in.
-
-To accomplish the above, we'll take advantage of the function 'tm_map' after defining a [text corpus](https://en.wikipedia.org/wiki/Text_corpus) object with our data.
-
-```R
-
+NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
+  
+  #Shuffles the dataframe
+  set.seed(0)
+  df = sample_n(dataFrame, nrow(dataFrame))
+  
+  #Splits data into training and test set
+  lastTrainRow = round(percentTrain * nrow(df))
+  train = df[1:lastTrainRow, ]
+  test = df[-(1:lastTrainRow), ]
+  
+  #Get a corpus of the training data and clean it by removing lower-case
+  #letters, punctuation, English "stopwords", and whitespace.
+  
   trainCorpus = VCorpus(VectorSource(train[, textColumn]))
   trainCorpus = trainCorpus %>% 
     tm_map(content_transformer(tolower)) %>%
     tm_map(removePunctuation) %>%
     tm_map(removeWords, stopwords(kind = "en")) %>%
     tm_map(stripWhitespace)
-    
-```
-
-Finally, we'll structure our BoW as a [document term matrix](https://en.wikipedia.org/wiki/Document-term_matrix) that counts the occurrence of each word out of *all* the documents used within our training data. However, we may only want to count words that appear, say, five times or more, with the reason being that words used only a few times out of all our training documents have little to nothing to contribute towards our predictive analysis.
-
-```R  
-
+  
+  #Gets a document term matrix to use for the actual algorithm and 
+  #filters infrequent words
+  
   dtmTrain = DocumentTermMatrix(trainCorpus)
   
   freqTerms = findFreqTerms(dtmTrain, 5)
   
   dtmTrain = DocumentTermMatrix(trainCorpus, control =
                                    list(dictionary = freqTerms))
-                                   
-```
-
-At this point we have our nice and clean BoW for us to use, so now we can begin writing the actual NB algorithm!
-
-## Training the data
-
-First we'll need to acquire all the different "unique" words used within all the documents and a count of the total number of documents used (to understand why, see the [Bernoulli model](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html)). 
-
-```R
-
+  
+  #Starts the Bernoulli Naive Bayes Algorithm
+  
+  #1. Extract vocabulary from training data
+  
   vocab = Terms(dtmTrain)
+  
+  #2. Count the total number of documents N
+  
   totDocs = nDocs(dtmTrain)
   
-```
-Next we need to find out what the prior probabilities for each class are -- i.e. if we knew nothing else about a player in the database, what are the odds he's guilty or not guilty? This is just a simple ratio of the number of guilty or non-guilty players in the database over the total number of players.
-
-```R
-
-nClass0 = nrow(train[train[ ,outcomeColumn] == 0, ])
-nClass1 = nrow(train[train[ ,outcomeColumn] == 1, ])
-priorProb0 = nClass0 / totDocs
-priorProb1 = nClass1 / totDocs
-
-```
-Now we'll need to figure out how many documents in each separate category contain each of our unique words (e.g. the word "dropped" might appear in 2 documents amongst the guilty players and in 20 documents amongst the non-guilty players). 
-
-```R
-
-trainTibble = tidy(as.matrix(dtmTrain))
-trainTibble$categ = train[,outcomeColumn]
-nDocsPerTerm0 = colSums(trainTibble[trainTibble$categ == 0, ])
-nDocsPerTerm1 = colSums(trainTibble[trainTibble$categ == 1, ])
-nDocsPerTerm0 = nDocsPerTerm0[-length(nDocsPerTerm0)]
-nDocsPerTerm1 = nDocsPerTerm1[-length(nDocsPerTerm1)] 
-
-```  
-(If you're wondering what the point of redefining "nDocsPerTerm1" and "nDocsPerTerm0", long story short, it's because initially those variables will also count the number of times the word "categ" appears in each of the documents separated by class. The last two commands drop it.)
-
-Great! Now we have all we need to find the conditional probabilities for each word in each of different categories of documents. Let's do that!
-
-```R
-
-termCondProb0 = (nDocsPerTerm0 + 1)/(nClass0 + 2)
-termCondProb1 = (nDocsPerTerm1 + 1)/(nClass1 + 2)
-
-```
-
-Again, see [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) to understand the formula above. 
-
-## Testing the Data
-
-We're almost done! First we need to clean the test data, which is the same procedure as what we did for the training data, as well as and grab all the unique vocabulary. 
-
-```R  
-
-testCorpus = VCorpus(VectorSource(test[,textColumn]))
-testCorpus = testCorpus %>% 
-  tm_map(content_transformer(tolower)) %>%
-  tm_map(removePunctuation) %>%
-  tm_map(removeWords, stopwords(kind = "en")) %>%
-  tm_map(stripWhitespace)
+  #3. Get the prior probabilities for class 1 and class 0 -- i.e. N_c/N
   
-dtmTest = DocumentTermMatrix(testCorpus)
-freqTermsTest = findFreqTerms(dtmTest, 5)
-dtmTest = DocumentTermMatrix(testCorpus, control =
+  nClass0 = nrow(train[train[ ,outcomeColumn] == 0, ])
+  nClass1 = nrow(train[train[ ,outcomeColumn] == 1, ])
+  priorProb0 = nClass0 / totDocs
+  priorProb1 = nClass1 / totDocs
+  
+  #4. Count the number of documents in each class 'c' containing term 't'
+  
+  trainTibble = tidy(as.matrix(dtmTrain))
+  trainTibble$categ = train[,outcomeColumn]
+  nDocsPerTerm0 = colSums(trainTibble[trainTibble$categ == 0, ])
+  nDocsPerTerm1 = colSums(trainTibble[trainTibble$categ == 1, ])
+
+  
+  #5. Get the conditional probabilities for the data
+  
+  termCondProb0 = (nDocsPerTerm0 + 1)/(nClass0 + 2)
+  termCondProb1 = (nDocsPerTerm1 + 1)/(nClass1 + 2)
+  
+  #6. Clean the test data
+  
+  testCorpus = VCorpus(VectorSource(test[,textColumn]))
+  testCorpus = testCorpus %>% 
+    tm_map(content_transformer(tolower)) %>%
+    tm_map(removePunctuation) %>%
+    tm_map(removeWords, stopwords(kind = "en")) %>%
+    tm_map(stripWhitespace)
+  
+  dtmTest = DocumentTermMatrix(testCorpus)
+  freqTermsTest = findFreqTerms(dtmTest, 5)
+  dtmTest = DocumentTermMatrix(testCorpus, control =
                                    list(dictionary = freqTermsTest))
+  
+  #7. Extract vocab from test data
  
-vocabTest = Terms(dtmTest)
-
-```
-Now the actual classification begins! Below is the code that predicts whether or not each row player in the test data should be classified as guilty or not based on their "OUTCOME" description. 
-
-```R
-
+ vocabTest = Terms(dtmTest)
+  
+  #8. Compute "guilty" vs. "not guilty" probability of each player, compare them, and classify player based on the result.
+  
   classifiedRows = c()
   
   for (i in 1:nDocs(dtmTest)) {
@@ -199,22 +158,22 @@ Now the actual classification begins! Below is the code that predicts whether or
     score0 = priorProb0
     score1 = priorProb1
   
-     doc = colSums(as.matrix(dtmTest[i, ]))
-     doc = doc[doc>0]
+    doc = colSums(as.matrix(dtmTest[i, ]))
+    doc = doc[doc>0]
   
-     for (j in 1:length(termCondProb0)){
-       if (names(termCondProb0)[j] %in% names(doc) == TRUE)
-         score0 = score0 * unname(termCondProb0[j])
-       else
-         score0 = score0 *(1 - unname(termCondProb0[j]))
-     }
+    for (j in 1:length(termCondProb0)){
+      if (names(termCondProb0)[j] %in% names(doc) == TRUE)
+        score0 = score0 * unname(termCondProb0[j])
+      else
+        score0 = score0 *(1 - unname(termCondProb0[j]))
+    }
   
-     for (k in 1:length(termCondProb1)){
-       if (names(termCondProb1)[k] %in% names(doc) == TRUE)
-         score1 = score1 * unname(termCondProb1[k])
-       else
-         score1 = score1 * (1 - unname(termCondProb1[k]))
-     }
+    for (k in 1:length(termCondProb1)){
+      if (names(termCondProb1)[k] %in% names(doc) == TRUE)
+        score1 = score1 * unname(termCondProb1[k])
+      else
+        score1 = score1 * (1 - unname(termCondProb1[k]))
+    }
   
    if(score0 >= score1)
      classifiedRows = append(classifiedRows, 0)
@@ -225,18 +184,6 @@ Now the actual classification begins! Below is the code that predicts whether or
    }
 
   
-  return(classifiedRows)
+  return(list('classifiedRows' = classifiedRows, 'test' = test))
 
 ```
-
-Kinda sorta make sense?
-
-Essentially all we're doing is creating an empty vector for the classified results and creating a double for-loop that...
-
-1. Defines the priors (score0 and score1) for both classes (guilty and not guilty).
-
-2. Based on the words found in a player's OUTCOME description/document, compute both the probability that a player is guilty and not guilty using each classes' respective priors and conditional probabilities for each word that we generated earlier.
-
-3. Compares the probability that a player is guilty to the probability he is not, and classifies the player based on said score -- i.e. if score0 is greater than or equal to score1, then the player is deemed 'not guilty' and a 0 is added to the classified rows section for that player.
-
-
