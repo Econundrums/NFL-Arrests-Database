@@ -49,9 +49,9 @@ NFL_dataframe$GUILTY = NA
 
 # Text Mining and Prediction: Naive Bayes Edition
 
-Next I need to classify each remaining player within the database as either guilty or not guilty -- i.e. a value of 1 in the GUILTY column if guilty and 0 otherwise.
+Now all the remaining players within the database need to be classified as either guilty or not guilty -- i.e. a value of 1 in the GUILTY column if guilty and 0 otherwise.
 
-I *could* just go through each row and categorize each row a 1 or a 0 based on the description in the OUTCOME column, but that would take too long. Instead, I'll use a homemade Naive Bayes R script to mine the text in the OUTCOME column and then predict whether or not to classify each player as guilty or not guilty.
+I *could* just go through each row and categorize each row a 1 or a 0 based on the description in the OUTCOME column, but that would take too long. It would be better to write an algorithm that mines the text in the OUTCOME column and then predicts whether or not to classify each player as guilty or not guilty based on what it reads. A homemade Naive Bayes R script will do this.
 
 If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Words (BoW) as a method of text classification, there are plenty of references out there, but I found that I thought were most useful were [here](https://www.youtube.com/watch?v=EGKeC2S44Rs) (for learning how to do it by hand), [here](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) (as an overview of sentiment analysis), and [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) (more into the weeds. About ~90% of how my code is structured is based on the information contained within this link).  
 
