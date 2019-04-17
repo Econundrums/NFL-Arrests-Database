@@ -57,7 +57,7 @@ If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Wor
 
 ## Training and Testing the NB Algorithm
 
-First, I will (unfortunately) have to manually label some of the rows with either a 0 or a 1 so that the algorithm can train on said rows and use the results to make predictions on the rest of the dataset. Thus, I manually labeled in Excel the first 100 rows in the Excel of the NFL Database. 
+First, I will (unfortunately) have to manually label some of the rows with either a 0 or a 1 (which I did in Excel for the first 108) so that the algorithm can train on said rows and use the results to make predictions on the rest of the players in the dataset.
 
 Now for the actual code -- below is my homemade version of the Bernoulli NB algorithm.
 
@@ -184,3 +184,4 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
   return(list('classifiedRows' = classifiedRows, 'test' = test))
 
 ```
+Cool! Now to test it out.
