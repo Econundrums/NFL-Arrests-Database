@@ -6,9 +6,9 @@ This will be an introduction.
 
 # Data Collection and Cleaning
 
-The first thing we need to do is collect and clean the data, which I will do by building a webscraper to go on the [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) website scrap the database. 
+The first thing to do is collect and clean the data, which can be accomplished by building a webscraper to go on the [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) website and scrap the database. 
 
-*A very sincere hat tip to [Andrew Cantino](https://vimeo.com/tectonic) for creating the [Selector Gadget](https://selectorgadget.com/) tool that helped me parse through html code.
+*A very sincere hat tip to [Andrew Cantino](https://vimeo.com/tectonic) for creating the [Selector Gadget](https://selectorgadget.com/) tool that helped me parse through html code and identify the css input needed to scrap the data columns.
 
 ```R
 install.packages('rvest')
@@ -37,7 +37,7 @@ NFL_dataframe = data.frame("NAMES" = NAMES, "POS" = POS, "TEAM" = TEAM,
                            'OUTCOME' = OUTCOME, stringsAsFactors = FALSE)
 ```
 
-Note that in the "OUTCOME" column of the dataframe there are many entries with the sentence "Resolution undetermined." These are players who have yet to be deemed guilty or not guilty. For my purpose, I need to remove these players from the database since I only care about players with known verdicts. The following piece of code will accomplish this.
+Note that in the "OUTCOME" column of the dataframe there are many entries with the sentence "Resolution undetermined." These are players who have yet to be deemed guilty or not guilty. For my purpose, it's best to remove these players from the database since only players with known verdicts are of importance. The following piece of code will accomplish this, as well as define an empty column titled "GUILTY" (which will be elaborated on below).
 
 ```R
 
