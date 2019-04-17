@@ -67,8 +67,8 @@ We'll need to make use of the 'dplyr', 'tm', and 'tidytext' packages. The snippe
 ```R
 
 library(dplyr) #
-library(tm) #for functions VectorSource, VCorpus, tm_map and TermDocumentMatrix
-library(tidytext)
+library(tm) # for functions VectorSource, VCorpus, tm_map and TermDocumentMatrix
+library(tidytext) # for functions tidy
 
 ```
 
@@ -94,7 +94,7 @@ Next we'll need to clean the text within the test data. This is done for the fol
 
 4. We want to strip any whitespace that may have accidentally been fat-fingered in.
 
-To accomplish the above, we'll take advantage of the function tm_map after defining our [text corpus](https://en.wikipedia.org/wiki/Text_corpus).
+To accomplish the above, we'll take advantage of the function 'tm_map' after defining a [text corpus](https://en.wikipedia.org/wiki/Text_corpus) object with our data.
 
 ```R
 
@@ -107,7 +107,7 @@ To accomplish the above, we'll take advantage of the function tm_map after defin
     
 ```
 
-Now for our word counts, we'll set up a [document term matrix](https://en.wikipedia.org/wiki/Document-term_matrix) for all words that appear at least 5 times out of *all* our documents in our training data, reason being that words used only a few times out fo all our training data have little to nothing to contribute towards our predictive analysis.
+Finally, we'll structure our BoW as a [document term matrix](https://en.wikipedia.org/wiki/Document-term_matrix) that counts the occurrence of each word out of *all* the documents used within our training data. However, we may only want to count words that appear, say, five times or more, with the reason being that words used only a few times out of all our training documents have little to nothing to contribute towards our predictive analysis.
 
 ```R  
 
@@ -124,7 +124,7 @@ At this point we have our nice and clean BoW for us to use, so now we can begin 
 
 ## Training the data
 
-First we'll need to acquire all the different "unique" words used within all the documents and a count of the total number of documents used (the "Why?" will become relevant soon, unless you already read my provided links regarding the Bernoulli model). 
+First we'll need to acquire all the different "unique" words used within all the documents and a count of the total number of documents used (to understand why, see the [Bernoulli model](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html)). 
 
 ```R
 
@@ -154,7 +154,7 @@ nDocsPerTerm0 = nDocsPerTerm0[-length(nDocsPerTerm0)]
 nDocsPerTerm1 = nDocsPerTerm1[-length(nDocsPerTerm1)] 
 
 ```  
-(If you're wondering what the point of redefining "nDocsPerTerm1" and "nDocsPerTerm0", long story short, it's because initially those variables will also count the number of times the word "categ" appears in each of the documents separated by class. The last two commands drop it. I don't want to explain why and the reason is trivial.)
+(If you're wondering what the point of redefining "nDocsPerTerm1" and "nDocsPerTerm0", long story short, it's because initially those variables will also count the number of times the word "categ" appears in each of the documents separated by class. The last two commands drop it.)
 
 Great! Now we have all we need to find the conditional probabilities for each word in each of different categories of documents. Let's do that!
 
@@ -231,6 +231,12 @@ Now the actual classification begins! Below is the code that predicts whether or
 
 Kinda sorta make sense?
 
-Essentially all we're doing is creating an empty vector for the classified results, creating a for-loop that computes the posterior...
+Essentially all we're doing is creating an empty vector for the classified results and creating a double for-loop that...
 
-...to be continued
+1. Defines the priors (score0 and score1) for both classes (guilty and not guilty).
+
+2. Based on the words found in a player's OUTCOME description/document, compute both the probability that a player is guilty and not guilty using each classes' respective priors and conditional probabilities for each word that we generated earlier.
+
+3. Compares the probability that a player is guilty to the probability he is not, and classifies the player based on said score -- i.e. if score0 is greater than or equal to score1, then the player is deemed 'not guilty' and a 0 is added to the classified rows section for that player.
+
+
