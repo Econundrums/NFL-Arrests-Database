@@ -184,7 +184,7 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
   return(list('classifiedRows' = classifiedRows, 'test' = test))
 
 ```
-Cool! Now to test it out to see if it works.
+Cool! Now to test it out to see if it works. Recall that one of the parameters required for our function is what percentage of the dataframe (in decimal form) should act as the training data. For this exercise, I'm choosing 60%, which is a "rule-of-thumb" standard.
 
 ```R
 
@@ -195,3 +195,20 @@ Cool! Now to test it out to see if it works.
 
 ```
 88%!!! Not perfect, but I'd say that's pretty darn good!
+
+## Making Predictions
+
+Now the code needs to be slightly modified so that it can make predictions on the full dataframe. That's easy, just do the following two things... 
+
+1. Change the input parameters of the code to the ones below.
+
+```R
+NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
+```
+
+2. At the very beginning of the code (before you set the seed), define the first two parameters as 'train' and 'test'.
+
+```R
+train = trainData
+test = testData
+```
