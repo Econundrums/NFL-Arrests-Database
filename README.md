@@ -53,19 +53,19 @@ Now all the remaining players within the database need to be classified as eithe
 
 I *could* just go through each row and categorize each row a 1 or a 0 based on the description in the OUTCOME column, but that would take too long. It would be better to write an algorithm that mines the text in the OUTCOME column and then predicts whether or not to classify each player as guilty or not guilty based on what it reads. A homemade Naive Bayes R script will do this.
 
-If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Words (BoW) as a method of text classification, there are plenty of references out there, but I found that I thought were most useful were [here](https://www.youtube.com/watch?v=EGKeC2S44Rs) (for learning how to do it by hand), [here](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) (as an overview of sentiment analysis), and [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) (more into the weeds. About ~90% of how my code is structured is based on the information contained within this link).  
+If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Words (BoW) as a method of text classification, there are plenty of references out there, but the ones I thought were most useful were [here](https://www.youtube.com/watch?v=EGKeC2S44Rs) (for learning how to do it by hand), [here](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) (as an overview of sentiment analysis), and [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) (more into the weeds. About ~90% of how my code is structured is based on the information contained within this link).  
 
 ## Training and Testing the NB Algorithm
 
 First, I will (unfortunately) have to manually label some of the rows with either a 0 or a 1 (which I did in Excel for the first 108) so that the algorithm can train on said rows and use the results to make predictions on the rest of the players in the dataset.
 
-Now for the actual code -- below is my homemade version of the Bernoulli NB algorithm.
+Now for the actual code; below is my homemade version of the Bernoulli NB algorithm. Since I want to keep the focus on the thesis at hand, I'm not going to do a "deep dive" into the NB code itself; that's another project in and of itself.
 
 ```R
 
 library(dplyr)
 library(tm)
-library(tidytext)
+library(tidyverse)
 
 NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
   
@@ -184,4 +184,14 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
   return(list('classifiedRows' = classifiedRows, 'test' = test))
 
 ```
-Cool! Now to test it out.
+Cool! Now to test it out to see if it works.
+
+```R
+
+> df = as.data.frame(NFL_Dataframe_Cleaned[1:108,])
+> nb = NaiveBayes(df, "OUTCOME", "GUILTY", 0.6)
+> mean(nb$predict == nb$actual)
+[1] 0.8837209
+
+```
+88%!!! Not perfect, but I'd say that's pretty darn good!
