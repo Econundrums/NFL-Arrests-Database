@@ -8,6 +8,8 @@
 
 [3. Text Mining and Prediction: Naive Bayes Edition](#NB)
 
+   [a. Training and Testing the NB Algorithm](#trainTestNB)
+
 [4. Are Defensive Tacklers More Prone to Commit Violent Crimes?](#thesis)
 
 # <a name="introduction"></a> Introduction
@@ -65,7 +67,7 @@ I *could* just go through each row and categorize each row a 1 or a 0 based on t
 
 If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Words (BoW) as a method of text classification, there are plenty of references out there, but the ones I thought were most useful were [here](https://www.youtube.com/watch?v=EGKeC2S44Rs) (for learning how to do it by hand), [here](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) (as an overview of sentiment analysis), and [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) (more into the weeds. About ~90% of how my code is structured is based on the information contained within this link).  
 
-## Training and Testing the NB Algorithm
+## <a name="trainTestNB"></a> Training and Testing the NB Algorithm
 
 First, I will (unfortunately) have to manually label some of the rows with either a 0 or a 1 (which I did in Excel for the first 108) so that the algorithm can train on said rows and use the results to make predictions on the rest of the players in the dataset.
 
