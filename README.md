@@ -9,6 +9,7 @@
 3. [Text Mining and Prediction: Naive Bayes Edition](#NB)
 
    i. [Training and Testing the NB Algorithm](#trainTestNB)
+   
    ii. [Making Predictions](#predictNB)
 
 4. [Are Defensive Tacklers More Prone to Commit Violent Crimes?](#thesis)
