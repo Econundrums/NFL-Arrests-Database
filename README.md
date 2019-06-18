@@ -2,21 +2,26 @@
 
 # Table of Contents
 
-[1. Introduction](#introduction)
+1. [Introduction](#introduction)
 
-[2. Data Collection and Cleaning](#dataCC)
+2. [Data Collection and Cleaning](#dataCC)
 
-[3. Text Mining and Prediction: Naive Bayes Edition](#NB)
+3. [Text Mining and Prediction: Naive Bayes Edition](#NB)
 
-   [a. Training and Testing the NB Algorithm](#trainTestNB)
+   i. [Training and Testing the NB Algorithm](#trainTestNB)
+   ii. [Making Predictions](#predictNB)
 
-[4. Are Defensive Tacklers More Prone to Commit Violent Crimes?](#thesis)
+4. [Are Defensive Tacklers More Prone to Commit Violent Crimes?](#thesis)
 
-# <a name="introduction"></a> Introduction
+   i. [Preliminary Analysis](#prelimAnal)
+
+<a name="introduction"></a> 
+# Introduction
 
 This will be an introduction. 
 
-# <a name="dataCC"></a> Data Collection and Cleaning
+<a name="dataCC"></a> 
+# Data Collection and Cleaning
 
 The first thing to do is collect and clean the data, which can be accomplished by building a webscraper to go on the [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) website and scrap the database. 
 
@@ -59,7 +64,8 @@ NFL_dataframe$GUILTY = NA
 
 ```
 
-# <a name="NB"></a> Text Mining and Prediction: Naive Bayes Edition
+<a name="NB"></a> 
+# Text Mining and Prediction: Naive Bayes Edition
 
 Now all the remaining players within the database need to be classified as either guilty or not guilty -- i.e. a value of 1 in the GUILTY column if guilty and 0 otherwise.
 
@@ -67,7 +73,8 @@ I *could* just go through each row and categorize each row a 1 or a 0 based on t
 
 If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Words (BoW) as a method of text classification, there are plenty of references out there, but the ones I thought were most useful were [here](https://www.youtube.com/watch?v=EGKeC2S44Rs) (for learning how to do it by hand), [here](https://web.stanford.edu/~jurafsky/slp3/slides/7_Sent.pdf) (as an overview of sentiment analysis), and [here](https://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html) (more into the weeds. About ~90% of how my code is structured is based on the information contained within this link).  
 
-## <a name="trainTestNB"></a> Training and Testing the NB Algorithm
+<a name="trainTestNB"></a> 
+## Training and Testing the NB Algorithm
 
 First, I will (unfortunately) have to manually label some of the rows with either a 0 or a 1 (which I did in Excel for the first 108) so that the algorithm can train on said rows and use the results to make predictions on the rest of the players in the dataset.
 
@@ -208,6 +215,7 @@ Cool! Now to test it out to see if it works. Recall that one of the parameters r
 ```
 88%!!! Not perfect, but I'd say that's pretty darn good!
 
+<a name="predictNB"></a>
 ## Making Predictions
 
 Now the code needs to be slightly modified so that it can make predictions on the full dataframe. That's easy, just do the following two things... 
@@ -264,8 +272,10 @@ Great! Now execute the code like so...
 ```
 Awesome! Now that the dataframe has all the players classified as guilty or not guilty.
 
-# <a name="thesis"></a> Are Defensive Tacklers More Prone to Commit Violent Crimes?
+<a name="thesis"></a> 
+# Are Defensive Tacklers More Prone to Commit Violent Crimes?
 
+<a name="prelimAnal"></a>
 ## Preliminary Analysis
 
 With the newly classified database in hand, it's time to do some analysis. Since our focus will be on violent crimes, we'll need to decide first what exactly we mean by that. Broadly speaking, a violent crime occurs when the offender uses or threatens the use of force upon their victim*.  However, one problem with the database is that the information contained in the "CATEGORY" column is either poorly defined and/or redundant. For example, some players like Dan Connor will have their crime categorized as something as ambiguous as "Weapon", which raises questions such as "Was this player arrested for possessing an illegal weapon, or using a weapon during a murder/assault, or both?" This requires a bit of a deep dive into all the 93 different categories and deciding which ones qualify as a violent crime. The code snippet below will highlight which categories were chosen for the analysis, as well as create another category column to classify players being arrested for violent crimes.
