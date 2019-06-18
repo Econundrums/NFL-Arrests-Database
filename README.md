@@ -1,10 +1,20 @@
 # NFL Arrests Database
 
-# Introduction
+# Table of Contents
+
+[1. Introduction](#introduction)
+
+[2. Data Collection and Cleaning](#dataCC)
+
+[3. Text Mining and Prediction: Naive Bayes Edition](#NB)
+
+[4. Are Defensive Tacklers More Prone to Commit Violent Crimes?](#thesis)
+
+# <a name="introduction"></a> Introduction
 
 This will be an introduction. 
 
-# Data Collection and Cleaning
+# <a name="dataCC"></a> Data Collection and Cleaning
 
 The first thing to do is collect and clean the data, which can be accomplished by building a webscraper to go on the [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) website and scrap the database. 
 
@@ -47,7 +57,7 @@ NFL_dataframe$GUILTY = NA
 
 ```
 
-# Text Mining and Prediction: Naive Bayes Edition
+# <a name="NB"></a> Text Mining and Prediction: Naive Bayes Edition
 
 Now all the remaining players within the database need to be classified as either guilty or not guilty -- i.e. a value of 1 in the GUILTY column if guilty and 0 otherwise.
 
@@ -252,7 +262,7 @@ Great! Now execute the code like so...
 ```
 Awesome! Now that the dataframe has all the players classified as guilty or not guilty.
 
-# Are Defensive Tacklers More Prone to Commit Violent Crimes?
+# <a name="thesis"></a> Are Defensive Tacklers More Prone to Commit Violent Crimes?
 
 ## Preliminary Analysis
 
