@@ -65,7 +65,7 @@ Now for the actual code; below is my homemade version of the Bernoulli NB algori
 
 library(dplyr)
 library(tm)
-library(tidyverse)
+library(tidytext)
 
 NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
   
@@ -203,12 +203,51 @@ Now the code needs to be slightly modified so that it can make predictions on th
 1. Change the input parameters of the code to the ones below.
 
 ```R
+
 NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
+
 ```
 
 2. At the very beginning of the code (before you set the seed), define the first two parameters as 'train' and 'test'.
 
 ```R
+
 train = trainData
 test = testData
+
 ```
+3. Remove the following bit of code from your function
+
+```R
+  
+  #Shuffles the dataframe
+  set.seed(0)
+  df = sample_n(dataFrame, nrow(dataFrame))
+  
+  #Splits data into training and test set
+  lastTrainRow = round(percentTrain * nrow(df))
+  train = df[1:lastTrainRow, ]
+  test = df[-(1:lastTrainRow), ]
+
+```
+
+4. Finally, change the output that your function returns to be
+
+```R
+
+return(classifiedRows) #This will return a vector classifying the other 567 unclassified rows -- i.e. the testData portion.
+
+```
+
+Great! Now execute the code like so...
+
+```R
+
+> df = as.data.frame(NFL_Dataframe_Cleaned)
+> dfTrain = df[1:108,]
+> dfTest = df[109:nrow(df),]
+> nbResults = NaiveBayes(dfTrain, dfTest, "OUTCOME", "GUILTY")
+> df[109:nrow(df), "GUILTY"] = nbResults 
+
+```
+Awesome! Now that the dataframe has all the players classified as guilty/not guilty, time to do some analysis that will answer the original question posed. 
