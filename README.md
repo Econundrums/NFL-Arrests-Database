@@ -277,30 +277,29 @@ Awesome! Now that the dataframe has all the players classified as guilty or not 
 # Are Defensive Tacklers More Prone to Commit Violent Crimes?
 
 <a name="prelimAnal"></a>
-## Preliminary Analysis
+## Preliminary Modifications & Analysis
 
-With the newly classified database in hand, it's time to do some analysis. Since our focus will be on violent crimes, we'll need to decide first what exactly we mean by that. Broadly speaking, a violent crime occurs when the offender uses or threatens the use of force upon their victim*.  However, one problem with the database is that the information contained in the "CATEGORY" column is either poorly defined and/or redundant. For example, some players like Dan Connor will have their crime categorized as something as ambiguous as "Weapon", which raises questions such as "Was this player arrested for possessing an illegal weapon, or using a weapon during a murder/assault, or both?" This requires a bit of a deep dive into all the 93 different categories and deciding which ones qualify as a violent crime. The code snippet below will highlight which categories were chosen for the analysis, as well as create another category column to classify players being arrested for violent crimes.
+With the newly classified database in hand, it's time to do some analysis. Since our focus will be on violent crimes, we'll need to decide first what exactly we mean by that. Broadly speaking, a violent crime occurs when the offender uses or threatens the use of force upon their victim*.  However, one problem with the database is that the information contained in the "CATEGORY" column is either poorly defined and/or redundant. For example, some players like Dan Connor will have their crime categorized as something as ambiguous as "Weapon", which raises questions such as "Was this player arrested for possessing an illegal weapon, or using a weapon during a murder/assault, or both?" This requires a bit of a deep dive into all the 93 different categories and deciding which ones qualify as a violent crime. As for dealing with redundancy, such as categorizing a crime as "Domestic violence, alcohol" or "Domestic violence, gun", crimes will be categorized as either "Aggravated Assault", "Sexual Assault/Rape", "Robbery", or "Murder" based on whether the description of the crime fits the corresponding categories' definition as defined by the FBI's 2017 [Uniform Crime Reporting (UCR) Database.](https://ucr.fbi.gov/crime-in-the-u.s/2017/crime-in-the-u.s.-2017/topic-pages/violent-crime) The following bit of code will add another column that classifies a crime as one of the 4 violent crime categories stated earlier and everything else as "Non-violent".
 
 <sub><sup>\* This does carry some nuances with it. For example, does brandishing a weapon constitute a threat to use force in the same manner that pulling it out and yelling "I'm going to use this on you!" does? Another nuance is that the definition of what qualifies as a certain sort of violent crime may change over time (e.g. "rape" has had multiple definitions according the FBI's Uniform Crime Reporting (UCR) Program within the past 6 years, which affects how the statistics are reported). To make the analysis as accurate as possible, the most recent definitions of violent crimes were used according to the definitions set by the UCR (see "Murder & Nonnegligent Manslaughter", "Legacy Rape", "Revised Rape", "Robbery", and "Aggravated Assault").</sup></sub>
 
 ```R
+AA = c("Domestic violence", "Bomb threat", "Battery", "Assault, gun", "Attempted murder",
+       "Battery, resisting arrrest", "Domestic", "Gun, assault", "Assault", "Child abuse", "Assault, alcohol",
+       "DUI, assault", "Alcohol, assault", "Coercion, gun", "Battery, alcohol", 
+       "Domestic violeance, alcohol", "Domestic violence, gun")
 
-> violentCrimes = c("Domestic violence", "Bomb threat", 
-                  "Sexual assault", "Battery",
-                  "Assault, gun", "Domestic violence, rape",
-                  "Attempted murder", 
-                  "Battery, resisting arrrest", "Domestic",
-                  "Gun, assault", "Burglary, assault",
-                  "Manslaughter, child abuse", "Murder",
-                  "Assault", "Robbery", "Child abuse",
-                  "Assault, alcohol", "Murder, gun",
-                  "DUI, assault", "Manslaughter", 
-                  "Alcohol, assault", "Coercion, gun",
-                  "Battery, alcohol",
-                  "Domestic violence, alcohol", 
-                  "Domestic violence, gun", "Theft, gun",
-                  "Burglary, battery")
+SAR = c("Sexual assault", "Domestic violence, rape")
 
-> df$VIOLENT = ifelse(df$CATEGORY %in% violentCrimes, 1, 0)
+robbery = c("Burglary, assault", "Robbery", "Theft, gun", "Burglary, battery")
+
+murder = c("Manslaughter, child abuse", "Murder", "Murder, gun", "Manslaughter")
+
+df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% AA, "Aggravated Assault", 
+                          ifelse(df$CATEGORY %in% SAR, "Sexual Assault/Rape",
+                            ifelse(df$CATEGORY %in% robbery, "Robbery", 
+                              ifelse(df$CATEGORY %in% murder, "Murder", "Non-violent"))))
+
 
 ```
+Now for some basic data visualizations to see if we can spot any trends in the data. Since this database isn't that "big" and doing visualizations in R can be tedious, I switched to using Power BI to build a basic dashboard containing multiple charts.
