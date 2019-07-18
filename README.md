@@ -302,4 +302,8 @@ df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% AA, "Aggravated Assault",
 
 
 ```
-Now for some basic data visualizations to see if we can spot any trends in the data. Since this database isn't that "big" and doing visualizations in R can be tedious, I switched to using Power BI to build a basic dashboard containing multiple charts. 
+Now for some basic data visualizations to see if we can spot any trends in the data. 
+
+Donut Chart 1        |  Donut Chart 2
+:-------------------:|:-------------------:
+
