@@ -19,12 +19,14 @@
 <a name="introduction"></a> 
 # Introduction
 
-This will be an introduction. 
+If the only thing you knew about a person is that they're a football player and a violent criminal, what position do you think they play? This was a question a friend of mine posed to me one day, one that I figured had already been researched and that the answer was only a quick Google search away. It isn't, but there is a database on [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) that records NFL player arrests with information such as their name, position, team they played for, type of crime, etc. To me, this was an even better find than the answer itself, because now I had the opportunity to explore the question first hand!
+
+The hypothesis (a la my friend) was that players who committed violent crimes were more likely to hold positions that required more physical aggression, which we thought would be the majority of the defensive positions (e.g. Linebackers, Cornerbacks, etc.).
 
 <a name="dataCC"></a> 
 # Data Collection and Cleaning
 
-The first thing to do is collect and clean the data, which can be accomplished by building a webscraper to go on the [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) website and scrap the database. 
+The first thing to do is collect and clean the data, which can be accomplished by building a webscraper to go on the USA Today website and scrap the database. 
 
 *A very sincere hat tip to [Andrew Cantino](https://vimeo.com/tectonic) for creating the [Selector Gadget](https://selectorgadget.com/) tool that helped me parse through html code and identify the css input needed to scrap the data columns.
 
@@ -302,7 +304,7 @@ df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% AA, "Aggravated Assault",
 
 
 ```
-Now for some basic data visualizations to see if we can spot any trends in the data. 
+Now for some basic data visualizations to see if we can spot any trends in the data. For this, well create some basic donut charts to see if there are any differences between the positions of players arrested for violent crimes and the positions of players found guilty of committing violent crimes.
 
 Donut Chart 1                             |  Donut Chart 2
 :----------------------------------------:|:-------------------:
