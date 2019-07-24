@@ -1,3 +1,8 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # NFL Arrests Database
 
 # Table of Contents
