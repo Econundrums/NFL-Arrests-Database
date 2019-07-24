@@ -287,25 +287,60 @@ With the newly classified database in hand, it's time to do some analysis. Since
 <sub><sup>\* This does carry some nuances with it. For example, does brandishing a weapon constitute a threat to use force in the same manner that pulling it out and yelling "I'm going to use this on you!" does? Another nuance is that the definition of what qualifies as a certain sort of violent crime may change over time (e.g. "rape" has had multiple definitions according the FBI's Uniform Crime Reporting (UCR) Program within the past 6 years, which affects how the statistics are reported). To make the analysis as accurate as possible, the most recent definitions of violent crimes were used according to the definitions set by the UCR (see "Murder & Nonnegligent Manslaughter", "Legacy Rape", "Revised Rape", "Robbery", and "Aggravated Assault").</sup></sub>
 
 ```R
-AA = c("Domestic violence", "Bomb threat", "Battery", "Assault, gun", "Attempted murder",
-       "Battery, resisting arrrest", "Domestic", "Gun, assault", "Assault", "Child abuse", "Assault, alcohol",
-       "DUI, assault", "Alcohol, assault", "Coercion, gun", "Battery, alcohol", 
-       "Domestic violeance, alcohol", "Domestic violence, gun")
 
-SAR = c("Sexual assault", "Domestic violence, rape")
+## Defines violent crimes
 
-robbery = c("Burglary, assault", "Robbery", "Theft, gun", "Burglary, battery")
+violentCrimes = c("Domestic violence", "Bomb threat", 
+                  "Sexual assault", "Battery",
+                  "Assault, gun", "Domestic violence, rape",
+                  "Attempted murder", 
+                  "Battery, resisting arrrest", "Domestic",
+                  "Gun, assault", "Burglary, assault",
+                  "Manslaughter, child abuse", "Murder",
+                  "Assault", "Robbery", "Child abuse",
+                  "Assault, alcohol", "Murder, gun",
+                  "DUI, assault", "Manslaughter", 
+                  "Alcohol, assault", "Coercion, gun",
+                  "Battery, alcohol",
+                  "Domestic violence, alcohol", 
+                  "Domestic violence, gun", "Theft, gun",
+                  "Burglary, battery")
 
-murder = c("Manslaughter, child abuse", "Murder", "Murder, gun", "Manslaughter")
+aggAssault = c("Domestic violence", "Bomb threat", 
+               "Battery", "Assault, gun", "Attempted murder",
+               "Battery, resisting arrrest", "Domestic", 
+               "Gun, assault", "Assault", 
+               "Child abuse", "Assault, alcohol",
+               "DUI, assault", "Alcohol, assault", 
+               "Coercion, gun", "Battery, alcohol", 
+               "Domestic violence, alcohol", "Domestic violence, gun")
 
-df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% AA, "Aggravated Assault", 
-                          ifelse(df$CATEGORY %in% SAR, "Sexual Assault/Rape",
+sexAssault = c("Sexual assault", "Domestic violence, rape")
+
+robbery = c("Burglary, assault", "Robbery", 
+            "Theft, gun", "Burglary, battery")
+
+murder = c("Manslaughter, child abuse", "Murder", 
+           "Murder, gun", "Manslaughter")
+
+df$VIOLENT = ifelse(df$CATEGORY %in% violentCrimes, "Violent", "Non-violent")
+
+df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% aggAssault, "Aggravated Assault", 
+                          ifelse(df$CATEGORY %in% sexAssault, "Sexual Assault/Rape",
                             ifelse(df$CATEGORY %in% robbery, "Robbery", 
                               ifelse(df$CATEGORY %in% murder, "Murder", "Non-violent"))))
 
 
 ```
-Now for some basic data visualizations to see if we can spot any trends in the data. For this, well create some basic donut charts to see if there are any differences between the positions of players arrested for violent crimes and the positions of players found guilty of committing violent crimes.
+Now for some basic data visualizations to see if we can spot any trends in the data. (For brevity, I'm omitting the code to create the charts here, but you can find it within the "NFL Arrest Analysis"" R Script uploaded to the repository.)
+
+Non-Violent vs. Violent Crimes            |  Violent Crimes by Category - Percentage
+:----------------------------------------:|:-------------------:
+![bar chart](images/bar_chart.png)        | ![pie chart](images/pie_chart.png)
+
+Based on the bar chart on the left, it seems the majority of the arrests (~ 69%) involve non-violent crimes. Amongst arrests for violent crimes, the vast majority involve a form of Aggravated Assault.  
+
+For this, well create some basic donut charts to see if there are any differences between the positions of players arrested for violent crimes and the positions of players found guilty of committing violent crimes.
 
 Donut Chart 1                             |  Donut Chart 2
 :----------------------------------------:|:-------------------:

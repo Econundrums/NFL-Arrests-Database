@@ -1,3 +1,5 @@
+## GRAVEYARD
+
 # # Counts violent crimes, both charged and convicted
 # 
 # posTable = sort(table(df[df$VIOLENT == 1, "POS"]), decreasing = TRUE)
@@ -62,10 +64,11 @@ library(ggplot2)
 library(xlsx)
 library(MASS)
 library(nnet)
+library(dplyr)
 
-df = read_excel("NFL_DataClassified.xlsx")
+df = read_excel("NFL Dataframe - Classified.xlsx")
 
-# Defines violent crimes
+## Defines violent crimes
 
 violentCrimes = c("Domestic violence", "Bomb threat", 
                   "Sexual assault", "Battery",
@@ -83,21 +86,27 @@ violentCrimes = c("Domestic violence", "Bomb threat",
                   "Domestic violence, gun", "Theft, gun",
                   "Burglary, battery")
 
-AA = c("Domestic violence", "Bomb threat", "Battery", "Assault, gun", "Attempted murder",
-       "Battery, resisting arrrest", "Domestic", "Gun, assault", "Assault", "Child abuse", "Assault, alcohol",
-       "DUI, assault", "Alcohol, assault", "Coercion, gun", "Battery, alcohol", 
-       "Domestic violence, alcohol", "Domestic violence, gun")
+aggAssault = c("Domestic violence", "Bomb threat", 
+               "Battery", "Assault, gun", "Attempted murder",
+               "Battery, resisting arrrest", "Domestic", 
+               "Gun, assault", "Assault", 
+               "Child abuse", "Assault, alcohol",
+               "DUI, assault", "Alcohol, assault", 
+               "Coercion, gun", "Battery, alcohol", 
+               "Domestic violence, alcohol", "Domestic violence, gun")
 
-SAR = c("Sexual assault", "Domestic violence, rape")
+sexAssault = c("Sexual assault", "Domestic violence, rape")
 
-robbery = c("Burglary, assault", "Robbery", "Theft, gun", "Burglary, battery")
+robbery = c("Burglary, assault", "Robbery", 
+            "Theft, gun", "Burglary, battery")
 
-murder = c("Manslaughter, child abuse", "Murder", "Murder, gun", "Manslaughter")
+murder = c("Manslaughter, child abuse", "Murder", 
+           "Murder, gun", "Manslaughter")
 
 df$VIOLENT = ifelse(df$CATEGORY %in% violentCrimes, "Violent", "Non-violent")
 
-df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% AA, "Aggravated Assault", 
-                          ifelse(df$CATEGORY %in% SAR, "Sexual Assault/Rape",
+df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% aggAssault, "Aggravated Assault", 
+                          ifelse(df$CATEGORY %in% sexAssault, "Sexual Assault/Rape",
                             ifelse(df$CATEGORY %in% robbery, "Robbery", 
                               ifelse(df$CATEGORY %in% murder, "Murder", "Non-violent"))))
 
@@ -135,6 +144,8 @@ donutChart1 = data %>%
   group_by(Category) %>% 
   plot_ly(labels = data$Category, values = data$Count.Freq)%>% add_pie(hole = 0.6)
 
+## Violent crime count by player position amongst convicted/guilty players donut chart
+
 tab = sort(table(df[df$VIOLENT == "Violent" & df$GUILTY == 1 ,'POS']), decreasing = TRUE)
 
 data = data.frame('Category' = names(tab), 'Count' = unname(tab))
@@ -142,6 +153,8 @@ data = data.frame('Category' = names(tab), 'Count' = unname(tab))
 donutChart2 = data %>% 
   group_by(Category) %>% 
   plot_ly(labels = data$Category, values = data$Count.Freq)%>% add_pie(hole = 0.6)
+
+## View donut charts
 
 donutChart1
 donutChart2
@@ -157,11 +170,13 @@ for (i in 1:length(allPos)){
 
 df$VIOLENT = ifelse(df$VIOLENT == 'Violent', 1, 0)
 
-#Shuffles the dataframe
+## Shuffles the dataframe
+
 set.seed(1)
 df = sample_n(df, nrow(df))
 
-#Splits data into training and test set
+## Splits data into training and test set
+
 percentTrain = 0.6
 lastTrainRow = round(percentTrain * nrow(df))
 dfTrain = df[1:lastTrainRow, ]
