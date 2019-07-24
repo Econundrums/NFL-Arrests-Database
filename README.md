@@ -1,8 +1,4 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
+
 # NFL Arrests Database
 
 # Table of Contents
@@ -316,4 +312,4 @@ Donut Chart 1                             |  Donut Chart 2
 ![donut chart 1](images/donut_chart1.png) | ![donut chart 2](images/donut_chart2.png)
 
 
-This is a test. Why is this stupid test not working? Seriously now, work! Argh!!!
+I did it! I connected to github via RStudio Cloud!
