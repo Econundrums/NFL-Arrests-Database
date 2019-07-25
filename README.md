@@ -16,13 +16,15 @@
 4. [Are Defensive Tacklers More Prone to Commit Violent Crimes?](#thesis)
 
    i. [Preliminary Analysis](#prelimAnal)
+   
+   ii. [Alternative Hypothesis](#altHyp)
 
 <a name="introduction"></a> 
 # Introduction
 
 If the only thing you knew about a person is that they're a football player and a violent criminal, what position do you think they play? This was a question a friend of mine posed to me one day, one that I figured had already been researched and that the answer was only a quick Google search away. It isn't, but there is a database on [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) that records NFL player arrests with information such as their name, position, team they played for, type of crime, etc. To me, this was an even better find than the answer itself, because now I had the opportunity to explore the question first hand!
 
-The hypothesis (a la my friend) was that players who committed violent crimes were more likely to hold positions that required more physical aggression, which we thought would be the majority of the defensive positions (e.g. Linebackers, Cornerbacks, etc.).
+The hypothesis (a la my friend) was that players who committed violent crimes were more likely to hold positions that required more physical aggression, which we thought would be the majority of the defensive positions (e.g. Linebackers, Cornerbacks, etc.) since they're job is to attack the offense.
 
 <a name="dataCC"></a> 
 # Data Collection and Cleaning
@@ -334,17 +336,26 @@ df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% aggAssault, "Aggravated Assault"
 ```
 Now for some basic data visualizations to see if we can spot any trends in the data. (For brevity, I'm omitting the code to create the charts here, but you can find it within the "NFL Arrest Analysis"" R Script uploaded to the repository.)
 
-Non-Violent vs. Violent Crimes            |  Violent Crimes by Category - Percentage
-:----------------------------------------:|:-------------------:
+Non-Violent vs. Violent Crimes - Count    |  Violent Crimes by Category - Percentage
+:----------------------------------------:|:----------------------------------------:
 ![bar chart](images/bar_chart.png)        | ![pie chart](images/pie_chart.png)
 
-Based on the bar chart on the left, it seems the majority of the arrests (~ 69%) involve non-violent crimes. Amongst arrests for violent crimes, the vast majority involve a form of Aggravated Assault.  
+Based on the bar chart on the left, it seems the majority of the arrests (~ 69%) involve non-violent crimes. Amongst arrests for violent crimes, the vast majority involve some form of Aggravated Assault. 
 
-For this, well create some basic donut charts to see if there are any differences between the positions of players arrested for violent crimes and the positions of players found guilty of committing violent crimes.
+Now lets look for interesting patterns amongst the players arrested for violent crimes grouped by their field position. For this, some basic donut charts will be created -- one for players accused for a crime and one for players found guilty of said crime.
 
-Donut Chart 1                             |  Donut Chart 2
-:----------------------------------------:|:-------------------:
-![donut chart 1](images/donut_chart1.png) | ![donut chart 2](images/donut_chart2.png)
+Violent Crimes By Player Position (Accused) - Percentage  |  Violent Crimes By Player Position (Guilty) - Percentage
+:--------------------------------------------------------:|:--------------------------------------------------------:
+![donut chart 1](images/donut_chart1.png)                 | ![donut chart 2](images/donut_chart2.png)
 
 
-I did it! I connected to github via RStudio Cloud!
+Some interesting things from the donut chart...
+
+1. Linebackers, Cornerbacks, and Defensive Tacklers are all defensive positions that are in the top 5 for violent crime arrests. However, amongst players found guilty, they all show a decrease in representation! For Linebackers the decrease is 4.5 percentage points, for Cornerbacks it's 1.2, and Defensive Tacklers it's 2.75.
+
+2. Wide Receivers and Running Backs are both defensive positions that are also in the top 5 for violent crime arrests, but, unlike the defensive positions listed above, they all show an increase in representation amongst players found guilty! For Wide Receivers the increase is a measly 0.7 percentage points. What's most interesting is the notable increase for Running Backs and Offensive Tacklers, which is 4.4 and 4.13 respectively. 
+
+These results seem contrary to our initial thoughts of players in defensive roles being more likely to commit violent crimes, and at first glance seem to go against our hypothesis. Does it? Let's do some...to be continued... 
+
+<a name="altHyp"></a>
+## Alternative Hypothesis

@@ -603,28 +603,59 @@ return(classifiedRows) #This will return a vector classifying the other 567 uncl
 <p><a name="prelimAnal"></a> ## Preliminary Modifications &amp; Analysis</p>
 <p>With the newly classified database in hand, it’s time to do some analysis. Since our focus will be on violent crimes, we’ll need to decide first what exactly we mean by that. Broadly speaking, a violent crime occurs when the offender uses or threatens the use of force upon their victim*. However, one problem with the database is that the information contained in the “CATEGORY” column is either poorly defined and/or redundant. For example, some players like Dan Connor will have their crime categorized as something as ambiguous as “Weapon”, which raises questions such as “Was this player arrested for possessing an illegal weapon, or using a weapon during a murder/assault, or both?” This requires a bit of a deep dive into all the 93 different categories and deciding which ones qualify as a violent crime. As for dealing with redundancy, such as categorizing a crime as “Domestic violence, alcohol” or “Domestic violence, gun”, crimes will be categorized as either “Aggravated Assault”, “Sexual Assault/Rape”, “Robbery”, or “Murder” based on whether the description of the crime fits the corresponding categories’ definition as defined by the FBI’s 2017 <a href="https://ucr.fbi.gov/crime-in-the-u.s/2017/crime-in-the-u.s.-2017/topic-pages/violent-crime">Uniform Crime Reporting (UCR) Database.</a> The following bit of code will add another column that classifies a crime as one of the 4 violent crime categories stated earlier and everything else as “Non-violent”.</p>
 <p><sub><sup>* This does carry some nuances with it. For example, does brandishing a weapon constitute a threat to use force in the same manner that pulling it out and yelling “I’m going to use this on you!” does? Another nuance is that the definition of what qualifies as a certain sort of violent crime may change over time (e.g. “rape” has had multiple definitions according the FBI’s Uniform Crime Reporting (UCR) Program within the past 6 years, which affects how the statistics are reported). To make the analysis as accurate as possible, the most recent definitions of violent crimes were used according to the definitions set by the UCR (see “Murder &amp; Nonnegligent Manslaughter”, “Legacy Rape”, “Revised Rape”, “Robbery”, and “Aggravated Assault”).</sup></sub></p>
-<pre class="r"><code>AA = c(&quot;Domestic violence&quot;, &quot;Bomb threat&quot;, &quot;Battery&quot;, &quot;Assault, gun&quot;, &quot;Attempted murder&quot;,
-       &quot;Battery, resisting arrrest&quot;, &quot;Domestic&quot;, &quot;Gun, assault&quot;, &quot;Assault&quot;, &quot;Child abuse&quot;, &quot;Assault, alcohol&quot;,
-       &quot;DUI, assault&quot;, &quot;Alcohol, assault&quot;, &quot;Coercion, gun&quot;, &quot;Battery, alcohol&quot;, 
-       &quot;Domestic violeance, alcohol&quot;, &quot;Domestic violence, gun&quot;)
+<pre class="r"><code>
+## Defines violent crimes
 
-SAR = c(&quot;Sexual assault&quot;, &quot;Domestic violence, rape&quot;)
+violentCrimes = c(&quot;Domestic violence&quot;, &quot;Bomb threat&quot;, 
+                  &quot;Sexual assault&quot;, &quot;Battery&quot;,
+                  &quot;Assault, gun&quot;, &quot;Domestic violence, rape&quot;,
+                  &quot;Attempted murder&quot;, 
+                  &quot;Battery, resisting arrrest&quot;, &quot;Domestic&quot;,
+                  &quot;Gun, assault&quot;, &quot;Burglary, assault&quot;,
+                  &quot;Manslaughter, child abuse&quot;, &quot;Murder&quot;,
+                  &quot;Assault&quot;, &quot;Robbery&quot;, &quot;Child abuse&quot;,
+                  &quot;Assault, alcohol&quot;, &quot;Murder, gun&quot;,
+                  &quot;DUI, assault&quot;, &quot;Manslaughter&quot;, 
+                  &quot;Alcohol, assault&quot;, &quot;Coercion, gun&quot;,
+                  &quot;Battery, alcohol&quot;,
+                  &quot;Domestic violence, alcohol&quot;, 
+                  &quot;Domestic violence, gun&quot;, &quot;Theft, gun&quot;,
+                  &quot;Burglary, battery&quot;)
 
-robbery = c(&quot;Burglary, assault&quot;, &quot;Robbery&quot;, &quot;Theft, gun&quot;, &quot;Burglary, battery&quot;)
+aggAssault = c(&quot;Domestic violence&quot;, &quot;Bomb threat&quot;, 
+               &quot;Battery&quot;, &quot;Assault, gun&quot;, &quot;Attempted murder&quot;,
+               &quot;Battery, resisting arrrest&quot;, &quot;Domestic&quot;, 
+               &quot;Gun, assault&quot;, &quot;Assault&quot;, 
+               &quot;Child abuse&quot;, &quot;Assault, alcohol&quot;,
+               &quot;DUI, assault&quot;, &quot;Alcohol, assault&quot;, 
+               &quot;Coercion, gun&quot;, &quot;Battery, alcohol&quot;, 
+               &quot;Domestic violence, alcohol&quot;, &quot;Domestic violence, gun&quot;)
 
-murder = c(&quot;Manslaughter, child abuse&quot;, &quot;Murder&quot;, &quot;Murder, gun&quot;, &quot;Manslaughter&quot;)
+sexAssault = c(&quot;Sexual assault&quot;, &quot;Domestic violence, rape&quot;)
 
-df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% AA, &quot;Aggravated Assault&quot;, 
-                          ifelse(df$CATEGORY %in% SAR, &quot;Sexual Assault/Rape&quot;,
+robbery = c(&quot;Burglary, assault&quot;, &quot;Robbery&quot;, 
+            &quot;Theft, gun&quot;, &quot;Burglary, battery&quot;)
+
+murder = c(&quot;Manslaughter, child abuse&quot;, &quot;Murder&quot;, 
+           &quot;Murder, gun&quot;, &quot;Manslaughter&quot;)
+
+df$VIOLENT = ifelse(df$CATEGORY %in% violentCrimes, &quot;Violent&quot;, &quot;Non-violent&quot;)
+
+df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% aggAssault, &quot;Aggravated Assault&quot;, 
+                          ifelse(df$CATEGORY %in% sexAssault, &quot;Sexual Assault/Rape&quot;,
                             ifelse(df$CATEGORY %in% robbery, &quot;Robbery&quot;, 
                               ifelse(df$CATEGORY %in% murder, &quot;Murder&quot;, &quot;Non-violent&quot;))))
 
 </code></pre>
-<p>Now for some basic data visualizations to see if we can spot any trends in the data.</p>
+<p>Now for some basic data visualizations to see if we can spot any trends in the data. (For brevity, I’m omitting the code to create the charts here, but you can find it within the “NFL Arrest Analysis”&quot; R Script uploaded to the repository.)</p>
 <table>
+<colgroup>
+<col width="50%"></col>
+<col width="50%"></col>
+</colgroup>
 <thead>
 <tr class="header">
-<th align="center">Non-Violent vs. Violent Crimes</th>
+<th align="center">Non-Violent vs. Violent Crimes - Count</th>
 <th align="center">Violent Crimes by Category - Percentage</th>
 </tr>
 </thead>
@@ -635,12 +666,17 @@ df$VIOLENT_NONVIOLENT = ifelse(df$CATEGORY %in% AA, &quot;Aggravated Assault&quo
 </tr>
 </tbody>
 </table>
+<p>Based on the bar chart on the left, it seems the majority of the arrests (~ 69%) involve non-violent crimes. Amongst arrests for violent crimes, the vast majority involve a form of Aggravated Assault.</p>
 <p>For this, well create some basic donut charts to see if there are any differences between the positions of players arrested for violent crimes and the positions of players found guilty of committing violent crimes.</p>
 <table>
+<colgroup>
+<col width="50%"></col>
+<col width="50%"></col>
+</colgroup>
 <thead>
 <tr class="header">
-<th align="center">Donut Chart 1</th>
-<th align="center">Donut Chart 2</th>
+<th align="center">Violent Crimes By Player Position (Accused) - Percentage</th>
+<th align="center">Violent Crimes By Player Position (Guilty) - Percentage</th>
 </tr>
 </thead>
 <tbody>
