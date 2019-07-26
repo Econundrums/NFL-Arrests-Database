@@ -10,18 +10,18 @@
 3. [Data Collection and Cleaning](#dataCC)
 
 4. [Text Mining and Prediction: Naive Bayes Edition](#NB) 
-    
+
     a. [Training and Testing the NB Algorithm](#trainTestNB)
-<p>
+
 5. [Thesis: Are Violent Criminal NFL Players More Likely to Play Defense?](#thesis)
     
     a. [Preliminary Analysis](#prelimAnal)
     
     b. [Alternative Hypothesis](#altHyp)
+    
+    c. [Multinomial Logistic Regression](#multinom)
         
-        i. [Multinomial Logistic Regression](#multinom)
-        
-        ii. [Decision Trees](#tree)
+    d. [Decision Trees](#tree)
    
 
 <a name="introduction"></a> 
@@ -452,7 +452,7 @@ The intuition for such is as follows: To win a football game a team needs to sco
 
 <a name="multinom"></a>
 
-### Multinomial Logistic Regression
+## Multinomial Logistic Regression
 
 One way to test our alternative hypothesis is to run a multinomial logistic regression for the various positions in the POS column on the binary categorical variable VIOLENT with only guilty players. If the new hypothesis carries any weight, there ought to be statistically significant positive correlation between the independent variable VIOLENT and the dependent variable positions OT (Offensive Tackle) and RB (Running Back).
 
@@ -541,8 +541,8 @@ WR 2.043774e-03     0.21360177
 
 It appears that between the two, as well as any of the other positions listed, OT is the only position in which VIOLENT is statistically significant for (OL can be ignored because it represents one datum point.) Thus, we can conclude that our hypothesis carries reasonable weight in regards to Offensive Tacklers. 
 
-<a name="trees"></a>
+<a name="tree"></a>
 
-### Decision Trees
+## Decision Trees
 
 To be continued at some future date.
