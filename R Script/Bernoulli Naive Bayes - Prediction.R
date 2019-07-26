@@ -5,18 +5,12 @@
 
 library(dplyr)
 library(tm) #for functions VectorSource, VCorpus, and TermDocumentMatrix
-library(tidytext)
+library(tidyverse)
 
-NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
-  
-  #Shuffles the dataframe
-  set.seed(1)
-  df = sample_n(dataFrame, nrow(dataFrame))
-  
-  #Splits data into training and test set
-  lastTrainRow = round(percentTrain * nrow(df))
-  train = df[1:lastTrainRow, ]
-  test = df[-(1:lastTrainRow), ]
+NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
+
+  train = trainData
+  test = testData
   
   #Get a corpus of the training data and clean it by removing lower-case
   #letters, punctuation, English "stopwords", and whitespace.
@@ -82,8 +76,8 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
   #7. Extract vocab from test data
   vocabTest = Terms(dtmTest)
   
-  #8. Compute "guilty" vs. "not guilty" probability of each player, compare them, and classify player 
-  # based on the result.
+  #8. Classify the test data by computing the conditional probability that each document belongs to either
+  # class1 or class 0, comparing said probabilities, and appending the results to an empty vector.
   
   classifiedRows = c()
   
@@ -95,30 +89,32 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
      doc = colSums(as.matrix(dtmTest[i, ]))
      doc = doc[doc>0]
   
-     for (j in 1:length(termCondProb0)){
+     for (j in 1:length(termCondProb0))
        if (names(termCondProb0)[j] %in% names(doc) == TRUE)
          score0 = score0 * unname(termCondProb0[j])
        else
          score0 = score0 *(1 - unname(termCondProb0[j]))
-     }
+     
   
-     for (k in 1:length(termCondProb1)){
+     for (k in 1:length(termCondProb1))
        if (names(termCondProb1)[k] %in% names(doc) == TRUE)
          score1 = score1 * unname(termCondProb1[k])
        else
          score1 = score1 * (1 - unname(termCondProb1[k]))
-     }
   
    if(score0 >= score1)
      classifiedRows = append(classifiedRows, 0)
    else
      classifiedRows = append(classifiedRows, 1)
   
-  
-   }
-
-  
-  return(list('predict' = classifiedRows, 
-              'actual' = test[, outcomeColumn]))
+     }
+     
+  return(classifiedRows)
   
 }
+
+NFL_Dataframe_Cleaned = read_excel("NFL Dataframe - Cleaned.xlsx")
+df = as.data.frame(NFL_Dataframe_Cleaned)
+predictions = NaiveBayes(df[1:108,], df[109:nrow(df),], "OUTCOME", "GUILTY")
+df[109:nrow(df), "GUILTY"] = predictions
+write.xlsx(df, "NFL Dataframe - Classified.xlsx")

@@ -1,70 +1,7 @@
-## GRAVEYARD
-
-# # Counts violent crimes, both charged and convicted
-# 
-# posTable = sort(table(df[df$VIOLENT == 1, "POS"]), decreasing = TRUE)
-# posTableGuilty = sort(table(df[df$GUILTY == 1 & df$VIOLENT == 1, 
-#                                "POS"]), decreasing = TRUE)
-# 
-# 
-# # Count of crime by type with basic bar chart
-# # NTS: We may want to group crimes together
-# 
-# crimeTable = sort(table(df$CATEGORY), decreasing = TRUE)
-# crimeTable = crimeTable[crimeTable >= 5]
-# crimes = names(crimeTable)
-# crimeCount = unname(crimeTable)
-# 
-# crimeTableGuilty = sort(table(df[df$GUILTY == 1, "CATEGORY"])
-#                         , decreasing = TRUE)
-# crimeTableGuilty = crimeTableGuilty[crimeTableGuilty >=5 ]
-# crimesGuilty = names(crimeTableGuilty)
-# crimeCountGuilty = unname(crimeTableGuilty)
-# 
-# barChart = plot_ly(x = crimes, y = crimeCount, 
-#             name = "NFL Arrests", type = "bar") %>%
-#   add_trace(y = crimeCountGuilty, name = 'Guilty') %>%
-#   layout(yaxis = list(title = "Count"), barmode = 'group')
-# 
-# # Top 5 teams with most players in the database.
-# 
-# teamTable = sort(table(df$TEAM), decreasing = TRUE)
-# 
-# teamNames = names(teamTable)
-# teamCount = unname(teamTable)
-# 
-# team_DF = data.frame('Teams' = teamNames, 'Count' = teamCount)
-# 
-# pieChart = plot_ly(team_DF, labels = team_DF$Teams, 
-#                    values = team_DF$Count.Freq, type = 'pie') 
-# 
-# # Top 5 teams with most guilty players in the database.
-# 
-# guiltyTeams = sort(table(df[df$GUILTY == 1, "TEAM"]), decreasing = TRUE)[1:5]
-# 
-# # Top 5 players who've allegedly commited the most crimes.
-# 
-# players = sort(table(df$NAMES), decreasing = TRUE)[1:5]
-# 
-# # Top 5 players who've commited the most crimes and been
-# # found guilty.
-# 
-# guiltyPlayers = sort(table(df[df$GUILTY == 1, "NAMES"]), decreasing = TRUE)[1:5]
-# 
-# 
-# 
-
-
-##################################
-
-
 library(readxl)
 library(plotly)
-library(ggplot2)
-library(xlsx)
-library(MASS)
 library(nnet)
-library(dplyr)
+
 
 df = read_excel("NFL Dataframe - Classified.xlsx")
 
@@ -159,55 +96,16 @@ donutChart2 = data %>%
 donutChart1
 donutChart2
 
-## Creates a bunch of columns of dummy variables by position
-
-allPos = unique(df$POS)
-
-for (i in 1:length(allPos)){
-  df[,allPos[i]] = ifelse(df$POS == allPos[i], 1, 0)
-}
-
-
-df$VIOLENT = ifelse(df$VIOLENT == 'Violent', 1, 0)
-
-## Shuffles the dataframe
-
-set.seed(1)
-df = sample_n(df, nrow(df))
-
-## Splits data into training and test set
-
-percentTrain = 0.6
-lastTrainRow = round(percentTrain * nrow(df))
-dfTrain = df[1:lastTrainRow, ]
-dfTest = df[-(1:lastTrainRow), ]
-
-mn = multinom(POS ~ VIOLENT, dfTrain)
-
-predicted = mn %>% predict(dfTest)
-
-mean(predicted == dfTest$POS)
-
-z = summary(mn)$coefficients/summary(mn)$standard.errors
-p = (1-pnorm(abs(z), 0, 1)) * 2
-
-
-## Sets it to guilty players
+## Sets dataframe to just guilty players
 
 df = df[df$GUILTY == 1, ]
 
-set.seed(2)
-df = sample_n(df, nrow(df))
+model = multinom(POS ~ VIOLENT, df)
 
-lastTrainRow = round(percentTrain * nrow(df))
-dfTrain = df[1:lastTrainRow, ]
-dfTest = df[-(1:lastTrainRow), ]
+summary(model)
 
-mn = multinom(POS ~ VIOLENT, dfTrain)
+z = summary(model)$coefficients/summary(model)$standard.errors
+p = (1-pnorm(abs(z), 0, 1)) * 2
 
-predicted = mn %>% predict(dfTest)
+p
 
-mean(predicted == dfTest$POS)
-
-z2 = summary(mn)$coefficients/summary(mn)$standard.errors
-p2 = (1-pnorm(abs(z2), 0, 1)) * 2
