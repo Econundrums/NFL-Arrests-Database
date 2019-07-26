@@ -27,7 +27,7 @@
 <a name="introduction"></a> 
 
 # Introduction
-test
+
 If the only thing you knew about a person is that they're a football player and a violent criminal, what position do you think they play? This was a question a friend of mine posed to me one day, one that I figured had already been researched and that the answer was only a quick Google search away. It isn't, but there is a database on [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) that records NFL player arrests with information such as their name, position, team they played for, type of crime, etc. To me, this was an even better find than the answer itself, because now I had the opportunity to explore the question first hand!
 
 The hypothesis (a la my friend) was that players who committed violent crimes were more likely to hold positions that required more physical aggression, which we thought would be the majority of the defensive positions (e.g. Linebackers, Corner Backs, etc.) since they're job is to attack the offense.
