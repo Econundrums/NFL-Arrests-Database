@@ -12,16 +12,16 @@
 4. [Text Mining and Prediction: Naive Bayes Edition](#NB) 
     
     a. [Training and Testing the NB Algorithm](#trainTestNB)
-<p>
+
 5. [Thesis: Are Violent Criminal NFL Players More Likely to Play Defense?](#thesis)
     
     a. [Preliminary Analysis](#prelimAnal)
     
     b. [Alternative Hypothesis](#altHyp)
         
-        i. [Multinomial Logistic Regression](#multinom)
+    c. [Multinomial Logistic Regression](#multinom)
         
-        ii. [Decision Trees](#tree)
+    d. [Decision Trees](#tree)
    
 
 <a name="introduction"></a> 
@@ -541,7 +541,7 @@ WR 2.043774e-03     0.21360177
 
 It appears that between the two, as well as any of the other positions listed, OT is the only position in which VIOLENT is statistically significant for (OL can be ignored because it represents one datum point.) Thus, we can conclude that our hypothesis carries reasonable weight in regards to Offensive Tacklers. 
 
-<a name="trees"></a>
+<a name="tree"></a>
 
 ### Decision Trees
 
