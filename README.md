@@ -9,13 +9,18 @@
 
 3. [Data Collection and Cleaning](#dataCC)
 
-4. [Text Mining and Prediction: Naive Bayes Edition](#NB)
+4. [Text Mining and Prediction: Naive Bayes Edition](#NB) 
+    
     a. [Training and Testing the NB Algorithm](#trainTestNB)
-    <p>
+<p>
 5. [Thesis: Are Violent Criminal NFL Players More Likely to Play Defense?](#thesis)
+    
     a. [Preliminary Analysis](#prelimAnal)
+    
     b. [Alternative Hypothesis](#altHyp)
+        
         i. [Multinomial Logistic Regression](#multinom)
+        
         ii. [Decision Trees](#tree)
    
 
@@ -358,6 +363,7 @@ predictions = NaiveBayes(df[1:108,], df[109:nrow(df),], "OUTCOME", "GUILTY")
 df[109:nrow(df), "GUILTY"] = predictions
 ```
 
+
 <a name="thesis"></a> 
 
 # Thesis: Are Violent Criminal NFL Players More Likely to Play Defense?
@@ -417,7 +423,7 @@ Now for some basic data visualizations to see if we can spot any trends in the d
 
 Non-Violent vs. Violent Crimes - Count    |  Violent Crimes by Category - Percentage
 :----------------------------------------:|:----------------------------------------:
-![bar chart](images/bar_chart.png)        | ![pie chart](images/pie_chart.png)
+![bar chart](Images/bar_chart.png)        | ![pie chart](Images/pie_chart.png)
 
 Based on the bar chart on the left, it seems the majority of the arrests (~ 69%) involve non-violent crimes. Amongst arrests for violent crimes, the vast majority involve some form of Aggravated Assault. 
 
@@ -425,7 +431,7 @@ Now lets look for interesting patterns amongst the players arrested for violent 
 
 Violent Crimes By Player Position (Accused) - Percentage  |  Violent Crimes By Player Position (Guilty) - Percentage
 :--------------------------------------------------------:|:--------------------------------------------------------:
-![donut chart 1](images/donut_chart1.png)                 | ![donut chart 2](images/donut_chart2.png)
+![donut chart 1](Images/donut_chart1.png)                 | ![donut chart 2](Images/donut_chart2.png)
 
 
 Some interesting things from the donut chart...
