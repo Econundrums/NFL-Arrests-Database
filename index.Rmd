@@ -9,21 +9,20 @@
 
 3. [Data Collection and Cleaning](#dataCC)
 
-4. [Text Mining and Prediction: Naive Bayes Edition](#NB) 
+4. [Text Mining and Prediction: Naive Bayes Edition](#NB)
     
-    a. [Training and Testing the NB Algorithm](#trainTestNB)
-
+    a) [Training and Testing the NB Algorithm](#trainTestNB)
+<p>
 5. [Thesis: Are Violent Criminal NFL Players More Likely to Play Defense?](#thesis)
     
-    a. [Preliminary Analysis](#prelimAnal)
+    a) [Preliminary Analysis](#prelimAnal)
     
-    b. [Alternative Hypothesis](#altHyp)
+    b) [Alternative Hypothesis](#altHyp)
         
-    c. [Multinomial Logistic Regression](#multinom)
+    c) [Multinomial Logistic Regression](#multinom)
         
-    d. [Decision Trees](#tree)
+    d) [Decision Trees](#tree)
    
-
 <a name="introduction"></a> 
 
 # Introduction
