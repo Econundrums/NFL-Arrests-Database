@@ -1,19 +1,21 @@
 
 # NFL Arrests Database
 
+If the only thing you knew about a person is that they're a football player and a violent criminal, what position do you think they play? This was a question a friend of mine posed to me one day, one that I figured had already been researched and that the answer was a quick Google search away. It isn't, but there is a database on [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) that records NFL player arrests with information such as their name, position, team they played for, type of crime, etc. With this information at hand, could we possibly find an answer?
+
+Our original hypothesis was that players who committed violent crimes were more likely to hold positions that required more physical aggression, which we thought would be the majority of the defensive positions (e.g. Linebackers, Corner Backs, etc.) since their job is to attack the offense.
+
 # Table of Contents
 
-1. [Introduction](#introduction)
+1. [Required Packages](#packages)
 
-2. [Required Packages](#packages)
+2. [Data Collection and Cleaning](#dataCC)
 
-3. [Data Collection and Cleaning](#dataCC)
-
-4. [Text Mining and Prediction: Naive Bayes Edition](#NB)
+3. [Text Mining and Prediction: Naive Bayes Edition](#NB)
     
     a) [Training and Testing the NB Algorithm](#trainTestNB)
 <p>
-5. [Thesis: Are Violent Criminal NFL Players More Likely to Play Defense?](#thesis)
+4. [Thesis: Are Violent Criminal NFL Players More Likely to Play Defense?](#thesis)
     
     a) [Preliminary Analysis](#prelimAnal)
     
@@ -21,15 +23,6 @@
         
     c) [Multinomial Logistic Regression](#multinom)
         
-    d) [Decision Trees](#tree)
-   
-<a name="introduction"></a> 
-
-# Introduction
-
-If the only thing you knew about a person is that they're a football player and a violent criminal, what position do you think they play? This was a question a friend of mine posed to me one day, one that I figured had already been researched and that the answer was only a quick Google search away. It isn't, but there is a database on [USA TODAY](https://www.usatoday.com/sports/nfl/arrests/) that records NFL player arrests with information such as their name, position, team they played for, type of crime, etc. To me, this was an even better find than the answer itself, because now I had the opportunity to explore the question first hand!
-
-The hypothesis (a la my friend) was that players who committed violent crimes were more likely to hold positions that required more physical aggression, which we thought would be the majority of the defensive positions (e.g. Linebackers, Corner Backs, etc.) since they're job is to attack the offense.
 
 <a name="packages"></a>
 
@@ -99,7 +92,7 @@ If you want to learn the theory behind Naive Bayes (NB) combined with Bag-of-Wor
 
 <a name="trainTestNB"></a> 
 
-## Training and Testing the NB Algorithm
+### Training and Testing the NB Algorithm
 
 First, I will (unfortunately) have to manually label some of the rows with either a 0 or a 1 (which I did in Excel for the first 108) so that the algorithm can train on said rows and use the results to make predictions on the rest of the players in the data set.
 
@@ -369,7 +362,7 @@ df[109:nrow(df), "GUILTY"] = predictions
 
 <a name="prelimAnal"></a>
 
-## Preliminary Analysis
+### Preliminary Analysis
 
 With the newly classified database in hand, it's time to do some analysis. Since our focus will be on violent crimes, we'll need to decide first what exactly we mean by that. Broadly speaking, a violent crime occurs when the offender uses or threatens the use of force upon their victim*.  However, one problem with the database is that the information contained in the "CATEGORY" column is either poorly defined and/or redundant. For example, some players like Dan Connor will have their crime categorized as something as ambiguous as "Weapon", which raises questions such as "Was this player arrested for possessing an illegal weapon, or using a weapon during a murder/assault, or both?" This requires a bit of a deep dive into all the 93 different categories and deciding which ones qualify as a violent crime. As for dealing with redundancy, such as categorizing a crime as "Domestic violence, alcohol" or "Domestic violence, gun", crimes will be categorized as either "Aggravated Assault", "Sexual Assault/Rape", "Robbery", or "Murder" based on whether the description of the crime fits the corresponding categories' definition as defined by the FBI's 2017 [Uniform Crime Reporting (UCR) Database.](https://ucr.fbi.gov/crime-in-the-u.s/2017/crime-in-the-u.s.-2017/topic-pages/violent-crime) The following bit of code will add another column that classifies a crime as one of the 4 violent crime categories stated earlier and everything else as "Non-violent".
 
@@ -443,7 +436,7 @@ These results seem contrary to our initial thoughts of players in defensive role
 
 <a name="altHyp"></a>
 
-## Alternative Hypothesis
+### Alternative Hypothesis
 
 Recall that our original hypothesis that NFL players who are violent criminals were more likely to play in positions involving more physical aggression, which was thought to be mainly defensive positions since they involve "attacking" the offense to prevent them from obtaining points via touchdowns and field goal kicks. However, perhaps only half of that hypothesis is correct, but instead the greater likelihood of NFL positions being held by violent criminals are offensive positions rather than defensive ones. 
 
@@ -539,9 +532,3 @@ WR 2.043774e-03     0.21360177
 ```
 
 It appears that between the two, as well as any of the other positions listed, OT is the only position in which VIOLENT is statistically significant for (OL can be ignored because it represents one datum point.) Thus, we can conclude that our hypothesis carries reasonable weight in regards to Offensive Tacklers. 
-
-<a name="tree"></a>
-
-### Decision Trees
-
-To be continued at some future date.
