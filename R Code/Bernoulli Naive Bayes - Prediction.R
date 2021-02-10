@@ -2,25 +2,19 @@
 #You can run "tibble" dataframes through this function if you set the df
 #parameter as NaiveBayes(as.data.frame(tibbleData), ...)
 
-library(dplyr)
-library(tm) 
-library(tidyverse)
-library(readxl)
 
-NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
+library(dplyr)
+library(tm) #for functions VectorSource, VCorpus, and TermDocumentMatrix
+library(tidyverse)
+library(XLConnect)
+
+NaiveBayes = function(trainData, testData, textColumn, outcomeColumn){
+
+  train = trainData
+  test = testData
   
-  ## Shuffles the dataframe
-  
-  set.seed(123)
-  df = sample_n(dataFrame, nrow(dataFrame))
-  
-  ## Splits data into training and test set
-  lastTrainRow = round(percentTrain * nrow(df))
-  train = df[1:lastTrainRow, ]
-  test = df[-(1:lastTrainRow), ]
-  
-  ## Get a corpus of the training data and clean it by removing lower-case
-  ## letters, punctuation, English "stopwords", and whitespace.
+  #Get a corpus of the training data and clean it by removing lower-case
+  #letters, punctuation, English "stopwords", and whitespace.
   
   trainCorpus = VCorpus(VectorSource(train[, textColumn]))
   trainCorpus = trainCorpus %>% 
@@ -29,8 +23,8 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
     tm_map(removeWords, stopwords(kind = "en")) %>%
     tm_map(stripWhitespace)
   
-  ## Gets a document term matrix to use for the actual algorithm and 
-  ## filters infrequent words
+  #Gets a document term matrix to use for the actual algorithm and 
+  #filters infrequent words
   
   dtmTrain = DocumentTermMatrix(trainCorpus)
   
@@ -39,7 +33,7 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
   dtmTrain = DocumentTermMatrix(trainCorpus, control =
                                    list(dictionary = freqTerms))
   
-  ## Starts the Bernoulli Naive Bayes Algorithm
+  #Starts the Bernoulli Naive Bayes Algorithm
   
   #1. Extract vocabulary from training data
   vocab = Terms(dtmTrain)
@@ -54,7 +48,7 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
   priorProb1 = nClass1 / totDocs
   
   #4. Count the number of documents in each class 'c' containing term 't'
-  trainTibble = tidy(as.matrix(dtmTrain))
+  trainTibble = as_tibble(as.matrix(dtmTrain))
   trainTibble$categ = train[,outcomeColumn]
   nDocsPerTerm0 = colSums(trainTibble[trainTibble$categ == 0, ])
   nDocsPerTerm1 = colSums(trainTibble[trainTibble$categ == 1, ])
@@ -83,8 +77,8 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
   #7. Extract vocab from test data
   vocabTest = Terms(dtmTest)
   
-  #8. Compute "guilty" vs. "not guilty" probability of each player, compare them, and classify player 
-  # based on the result.
+  #8. Classify the test data by computing the conditional probability that each document belongs to either
+  # class1 or class 0, comparing said probabilities, and appending the results to an empty vector.
   
   classifiedRows = c()
   
@@ -101,6 +95,7 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
          score0 = score0 * unname(termCondProb0[j])
        else
          score0 = score0 *(1 - unname(termCondProb0[j]))
+     
   
      for (k in 1:length(termCondProb1))
        if (names(termCondProb1)[k] %in% names(doc) == TRUE)
@@ -112,15 +107,22 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
      classifiedRows = append(classifiedRows, 0)
    else
      classifiedRows = append(classifiedRows, 1)
-   
+  
      }
-
-  return(list('predict' = classifiedRows, 'actual' = test[, outcomeColumn]))
+     
+  return(classifiedRows)
   
 }
 
+path = "Data/NFL Player Arrests.xlsx"
+train = as.data.frame(readWorksheetFromFile(path, sheet = "Training")) 
+test = as.data.frame(readWorksheetFromFile(path, sheet = "Test")) 
+predictions = NaiveBayes(train, test, "OUTCOME", "GUILTY")
+test$GUILTY = predictions
 
-NFL_Dataframe_Cleaned <- read_excel("NFL Dataframe - Cleaned.xlsx")
-df = as.data.frame(NFL_Dataframe_Cleaned[1:108,])
-nb = NaiveBayes(df, "OUTCOME", "GUILTY", 0.6)
-mean(nb$predict == nb$actual)
+wb = loadWorkbook(path)
+createSheet(wb, "Results")
+results = rbind(train, test)
+writeWorksheet(wb, results, sheet = "Results")
+saveWorkbook(wb, path)
+
