@@ -119,8 +119,9 @@ NaiveBayes = function(dataFrame, textColumn, outcomeColumn, percentTrain){
   
 }
 
-path = "Data/NFL Player Arrests.xlsx"
-train = as.data.frame(readWorksheetFromFile(path, sheet = "Training")) 
+setwd("../Data")
+train = as.data.frame(readWorksheetFromFile("NFL Player Arrests.xlsx", 
+                                            sheet = "Training")) 
 nb = NaiveBayes(train, "OUTCOME", "GUILTY", 0.5)
 mean(nb$predict == nb$actual)
-table(nb$predict, nb$actual)
+table(nb$predict, nb$actual, dnn = c("Prediction", "Actual"))
